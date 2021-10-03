@@ -1,0 +1,2 @@
+hello.c:27:5:main	24	static
+hello.c:147:6:serial_print_things	16	static
