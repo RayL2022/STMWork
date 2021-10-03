@@ -1,0 +1,60 @@
+!SESSION 2021-08-14 18:39:47.679 -----------------------------------------------
+eclipse.buildId=Version 1.7.0
+java.version=11.0.10
+java.vendor=AdoptOpenJDK
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2021-08-14 18:44:09.060
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2021-08-14 18:44:09.105
+!MESSAGE Log4j initialized with config file E:\STMWork\stm32lib\.metadata\.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2021-08-14 18:44:25.732
+!MESSAGE Started RMI Server, listening on port 41337
+
+!ENTRY org.eclipse.cdt.core 1 0 2021-08-14 18:46:44.327
+!MESSAGE Indexed 'LAB-01-Template' (3 sources, 4 headers) in 0.292 sec: 79 declarations; 237 references; 16 unresolved inclusions; 0 syntax errors; 146 unresolved names (32%)
+!SESSION 2021-08-28 13:23:12.876 -----------------------------------------------
+eclipse.buildId=Version 1.7.0
+java.version=11.0.10
+java.vendor=AdoptOpenJDK
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2021-08-28 13:23:28.311
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2021-08-28 13:23:28.532
+!MESSAGE Log4j initialized with config file E:\STMWork\stm32lib\.metadata\.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2021-08-28 13:23:39.533
+!MESSAGE Started RMI Server, listening on port 41337
+!SESSION 2021-08-28 13:27:13.943 -----------------------------------------------
+eclipse.buildId=Version 1.7.0
+java.version=11.0.10
+java.vendor=AdoptOpenJDK
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2021-08-28 13:27:20.307
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2021-08-28 13:27:20.356
+!MESSAGE Log4j initialized with config file E:\STMWork\stm32lib\.metadata\.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2021-08-28 13:27:25.747
+!MESSAGE Started RMI Server, listening on port 41337
+
+!ENTRY org.eclipse.cdt.core 1 0 2021-08-28 13:33:07.570
+!MESSAGE Indexed 'LAB-01-Template' (3 sources, 4 headers) in 0.309 sec: 79 declarations; 237 references; 16 unresolved inclusions; 0 syntax errors; 146 unresolved names (32%)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2021-08-28 13:43:05.634
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2021-08-28 13:43:19.988
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY org.eclipse.cdt.core 1 0 2021-08-28 13:55:57.428
+!MESSAGE Indexed 'LAB-01-Template' (3 sources, 45 headers) in 0.229 sec: 1,411 declarations; 2,305 references; 12 unresolved inclusions; 0 syntax errors; 126 unresolved names (3.3%)

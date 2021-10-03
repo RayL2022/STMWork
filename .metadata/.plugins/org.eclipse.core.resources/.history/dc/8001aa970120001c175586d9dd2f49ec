@@ -1,0 +1,82 @@
+//----------------------------------
+// Task1.c
+//----------------------------------
+// Objective:
+//   Build a small game that records user's reaction time.
+//
+
+//
+//
+// -- Imports ---------------
+//
+#include "init.h"
+
+//
+//
+// -- Prototypes ------------
+//
+void Init_Timer();
+//void TIM_IRQHandler(TIM_HandleTypeDef * htim);
+//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef * htim);
+//void HAL_TIMEx_BreakCallback(TIM_HandleTypeDef *htim);
+//void HAL_TIMEx_CommutationCallback(TIM_HandleTypeDef *htim);
+
+double time_elapsed;
+TIM_HandleTypeDef HTIM7;
+
+//
+//
+// -- Code Body -------------
+//
+
+
+int main() {
+	Sys_Init();
+    HAL_Init(); //Initialize HAL
+	Init_Timer();
+	printf("\033[2J"); fflush(stdout);
+	time_elapsed = 0;
+	while (1) {
+	}
+}
+
+//
+//
+// -- Init Functions ----------
+//
+void Init_Timer() {
+
+	__HAL_RCC_TIM7_CLK_ENABLE();
+	HTIM7.Instance = TIM7;
+
+	//Enable interrupts on NVIC
+	//HAL_NVIC_SetPriority(TIM7_IRQn, 62, 62);
+	HAL_NVIC_EnableIRQ(TIM7_IRQn);
+
+	//Configure Timer 7
+	HTIM7.Init.Prescaler = 24999;
+	HTIM7.Init.Period = 431;
+	//HTIM7.Init.CounterMode = TIM_COUNTERMODE_UP;
+	//HTIM7.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	//HTIM7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+	HAL_TIM_Base_Init(&HTIM7);
+
+	HAL_TIM_Base_Start_IT(&HTIM7);
+}
+
+
+//HAL - GPIO/EXTI Handler
+void TIM7_IRQHandler(TIM_HandleTypeDef *htim) {
+	HAL_TIM_IRQHandler(&HTIM7);
+}
+
+//HAL - Callback Function
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+	if (htim->Instance == TIM7){
+		time_elapsed += 0.1;
+		printf("/033[0:0HTime Elapsed: %.1f seconds\r\n", time_elapsed);
+	}
+}
+
+void HAL_TIMEx_BreakCallback(TIM_HandleTypeDef *htim){};
+void HAL_TIMEx_CommutationCallback(TIM_HandleTypeDef *htim){};

@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="Delete resource &apos;Lab02_Interrupts_Timers_Template.zip_expanded&apos;" deleteContents="false" description="Delete resource &apos;Lab02_Interrupts_Timers_Template.zip_expanded&apos;" element1="/Lab02_Interrupts_Timers_Template.zip_expanded" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1632172953497"/>&#x0A;<refactoring comment="Delete resource &apos;LAB-01-Template/src/Task1+2.c&apos;" deleteContents="false" description="Delete resource &apos;LAB-01-Template/src/Task1+2.c&apos;" element1="/LAB-01-Template/src/Task1+2.c" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1632343225771"/>
+</session>

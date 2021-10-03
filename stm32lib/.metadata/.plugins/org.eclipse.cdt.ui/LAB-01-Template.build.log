@@ -1,0 +1,14 @@
+14:03:16 **** Incremental Build of configuration Debug for project LAB-01-Template ****
+make all 
+arm-none-eabi-gcc "../src/hello.c" -mcpu=cortex-m7 -std=gnu11 -g3 -DUSE_HAL_DRIVER -DSTM32F769xx -DUSE_STM32F769I_DISCO -c -I"E:/STMWork/stm32lib/LAB-01-Template/inc" -Og -ffunction-sections -Wall -Wdouble-promotion -fstack-usage -MMD -MP -MF"src/hello.d" -MT"src/hello.o" --specs=nano.specs -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -o "src/hello.o"
+In file included from E:/STMWork/stm32lib/LAB-01-Template/inc/hello.h:17,
+                 from ../src/hello.c:18:
+E:/STMWork/stm32lib/LAB-01-Template/inc/init.h:4:10: fatal error: stm32f769xx.h: No such file or directory
+    4 | #include "stm32f769xx.h"
+      |          ^~~~~~~~~~~~~~~
+compilation terminated.
+make: *** [src/subdir.mk:25: src/hello.o] Error 1
+"make all" terminated with exit code 2. Build might be incomplete.
+
+14:03:16 Build Failed. 2 errors, 0 warnings. (took 382ms)
+
