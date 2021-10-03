@@ -1,7 +1,7 @@
 LaunchTargetManager/org.eclipse.launchbar.core.launchTargetType.local,Local/arch=x86_64
 LaunchTargetManager/org.eclipse.launchbar.core.launchTargetType.local,Local/name=Local
 LaunchTargetManager/org.eclipse.launchbar.core.launchTargetType.local,Local/os=win32
-configDescList=org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:LAB-01-Template Debug,org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:MPS_Lab01.elf,org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:LAB-02-Template Debug
+configDescList=org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:LAB-01-Template Debug,org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:MPS_Lab01.elf,org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:LAB-02-Template Debug,org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:LAB-03_Template.elf
 eclipse.preferences.version=1
 org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:LAB-01-Template\ Debug/activeLaunchMode=debug
 org.eclipse.cdt.dsf.gdb.gdbRemotedescriptorType\:LAB-01-Template\ Debug/activeLaunchTarget=null\:---

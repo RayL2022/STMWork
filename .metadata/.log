@@ -9726,3 +9726,38 @@ This warning can be switched off on the Team > Git > Confirmations and Warnings 
 
 !ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2021-10-03 13:50:09.311
 !MESSAGE Started RMI Server, listening on port 41337
+
+!ENTRY org.eclipse.core.resources 4 77 2021-10-03 13:54:55.352
+!MESSAGE Invalid project description.
+!SUBENTRY 1 unknown 0 0 2021-10-03 13:54:55.352
+!MESSAGE OK
+!SUBENTRY 1 org.eclipse.core.resources 4 77 2021-10-03 13:54:55.352
+!MESSAGE E:\STMWork\LAB-03-Template overlaps the location of another project: 'LAB-03-Template'
+
+!ENTRY org.eclipse.cdt.core 1 0 2021-10-03 13:56:19.197
+!MESSAGE Indexed 'LAB-03_Template' (16 sources, 71 headers) in 2.7 sec: 4,907 declarations; 23,838 references; 0 unresolved inclusions; 0 syntax errors; 0 unresolved names (0%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2021-10-03 13:58:34.177
+!MESSAGE Indexed 'LAB-03_Template' (3 sources, 3 headers) in 0.04 sec: 68 declarations; 171 references; 15 unresolved inclusions; 0 syntax errors; 120 unresolved names (33%)
+!SESSION 2021-10-03 13:59:29.493 -----------------------------------------------
+eclipse.buildId=Version 1.7.0
+java.version=11.0.10
+java.vendor=AdoptOpenJDK
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2021-10-03 13:59:38.249
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2021-10-03 13:59:38.299
+!MESSAGE Log4j initialized with config file E:\STMWork\.metadata\.log4j.xml
+
+!ENTRY org.eclipse.egit.ui 2 0 2021-10-03 13:59:42.907
+!MESSAGE Warning: The environment variable HOME is not set. The following directory will be used to store the Git
+user global configuration and to define the default location to store repositories: 'C:\Users\pokio'. If this is
+not correct please set the HOME environment variable and restart Eclipse. Otherwise Git for Windows and
+EGit might behave differently since they see different configuration options.
+This warning can be switched off on the Team > Git > Confirmations and Warnings preference page.
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2021-10-03 13:59:45.099
+!MESSAGE Started RMI Server, listening on port 41337

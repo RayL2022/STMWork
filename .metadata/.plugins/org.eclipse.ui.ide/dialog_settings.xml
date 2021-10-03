@@ -9,6 +9,7 @@
 			<item value=""/>
 		</list>
 		<list key="WizardProjectsImportPage.STORE_ARCHIVES">
+			<item value="E:\New Downloads\Lab03_UART_SPI_Template.zip"/>
 			<item value="E:\New Downloads\Lab01_ANSI_Term-GPIO_Template.zip"/>
 		</list>
 	</section>
@@ -18,6 +19,8 @@
 		<item key="SmartImportRootWizardPage.STORE_NESTED_PROJECTS" value="true"/>
 		<item key="SmartImportRootWizardPage.STORE_CONFIGURE_NATURES" value="true"/>
 		<list key="org.eclipse.ui.internal.wizards.datatransfer.SmartImportRootWizardPage.knownSources">
+			<item value="E:\New Downloads\Lab03_UART_SPI_Template.zip"/>
+			<item value="E:\STMWork\LAB-03-Template"/>
 			<item value="E:\New Downloads\Lab02_Interrupts_Timers_Template.zip"/>
 		</list>
 	</section>
