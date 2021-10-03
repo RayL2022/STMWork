@@ -10,7 +10,7 @@ int main(void) {
 	//Initialize the system
 	Sys_Init();
 
-	printf("Your code here!\r\n");
+	printf("Test!\r\n");
 
 	// Lost? Check out uart.c!
 
