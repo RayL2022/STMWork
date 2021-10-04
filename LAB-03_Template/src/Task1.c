@@ -6,7 +6,7 @@
 
 UART_HandleTypeDef UART6; //Handle type structure for USART6
 char input; //For storing user inputs
-
+char end_message[] = "Program Has Halted\r\n";
 // Main Execution Loop
 int main(void) {
 	//Initialize the system
@@ -17,7 +17,13 @@ int main(void) {
 	while (1){
 		input = uart_getchar(&UART6, 1); //Get a char and echo the char
 
-		printf("%c\r\n", input); //Print on this terminal
+		if (input == "\033"){ //When Escape key is pressed
+			uart_print(&UART6, end_message); //Tell peripheral to print end_message
+			printf("%c\r\n",end_messge); //Print on controller end
+		}
+		else{
+			printf("%c\r\n", input); //Print on controller end
+		}
 	}
 
 }
