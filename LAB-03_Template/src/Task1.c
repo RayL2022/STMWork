@@ -17,9 +17,9 @@ int main(void) {
 	while (1){
 		input = uart_getchar(&UART6, 1); //Get a char and echo the char
 
-		if (input == "\033"){ //When Escape key is pressed
+		if (input == '\033'){ //When Escape key is pressed
 			uart_print(&UART6, end_message); //Tell peripheral to print end_message
-			printf("%c\r\n",end_messge); //Print on controller end
+			printf("%s\r\n",end_message); //Print on controller end
 		}
 		else{
 			printf("%c\r\n", input); //Print on controller end
