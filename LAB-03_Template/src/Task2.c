@@ -11,6 +11,7 @@ UART_HandleTypeDef UART1; //Handle type structure for USART1
 int main(void) {
 	//Initialize the system
 	Sys_Init();
+	Hal_Init();
 	initUart(&UART6, 38400, USART6); //Initialize UART with 38400 Baud and Instance USART6
 	HAL_UART_MspInit(&UART6); //Initialize GPIOs for USART6
 
