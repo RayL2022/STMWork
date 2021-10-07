@@ -6,7 +6,7 @@
 
 UART_HandleTypeDef U6; //Handle type structure for USART6'
 //For storing user inputs
-char end_message[] = "Program Has Halted\r\n";
+char end_message[18] = {'P','r','o','g','r','a','m',' ','H','a','s',' ','H','a','l','t','e','d'};
 char input;
 int end();
 int halt;
@@ -14,9 +14,6 @@ int halt;
 int main(void) {
 	//Initialize the system
 	Sys_Init();
-
-	//initUart(&USB_UART, 115200, USART1);
-	//HAL_UART_MspInit(&USB_UART);
 
 	fflush(stdout);
 
@@ -50,8 +47,8 @@ int main(void) {
 
 int end(){
 	if (input == '\033'){ //When Escape key is pressed
-		HAL_UART_Transmit(&U6, (uint8_t*) end_message, strlen((const char*)end_message), 1000);
-		HAL_UART_Transmit(&USB_UART, (uint8_t*) end_message, strlen((const char*)end_message), 1000);
+		HAL_UART_Transmit(&U6, (uint8_t*) end_message, strlen((const char*)end_message), 10);
+		HAL_UART_Transmit(&USB_UART, (uint8_t*) end_message, strlen((const char*)end_message), 10);
 		return 1;
 	}
 	return 0;
