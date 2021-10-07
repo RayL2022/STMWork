@@ -14,27 +14,25 @@ int main(void) {
 	Sys_Init();
 	HAL_Init();
 
-	initUart(&USB_UART, 115200, USART1);
-	HAL_UART_MspInit(&USB_UART);
+	//initUart(&USB_UART, 115200, USART1);
+	//HAL_UART_MspInit(&USB_UART);
 
 	initUart(&U6, 38400, USART6); //Initialize UART with 38400 Baud and Instance USART6
 	HAL_UART_MspInit(&U6); //Initialize GPIOs for USART6
-	//HAL_UART_Receive(&U6, (uint8_t*) &input, 1, 1000);
-	//HAL_UART_Transmit(&U6, (uint8_t*) &input, 1, 1000);
 	while (1){
-		HAL_Delay(1000);
-		HAL_UART_Receive(&USB_UART, (uint8_t*) &input, 1, 1000);
-		if (input){
-			HAL_UART_Transmit(&U6, (uint8_t*) &input, 1, 1000);
-			input = 0;
+		HAL_UART_Receive(&USB_UART, (uint8_t*) &input, 1, 10);
+		HAL_UART_Transmit(&U6, (uint8_t*) &input, 1, 10);
+
+		/*
+		if (input == '\033'){ //When Escape key is pressed
+			HAL_UART_Transmit(&UART6, (uint8_t*) end_message, strlen((const char*)end_message), 1000);
+			printf("%s",end_message); //Print on controller end
+			return 1;
 		}
-
-
-		HAL_UART_Receive(&U6, (uint8_t*) &input, 1, 1000);
-		if (input){
-			HAL_UART_Transmit(&USB_UART, (uint8_t*) &input, 1, 1000);
-			input = 0;
+		else{
+			printf("%c\r\n", input); //Print on controller end
 		}
-
+		 */
+	}
 
 }
