@@ -6,7 +6,7 @@
 
 UART_HandleTypeDef U6; //Handle type structure for USART6
 char input;
-char end_message[18] = {'P','r','o','g','r','a','m',' ','H','a','s',' ','H','a','l','t','e','d'};
+char end_message[] = "\r\nProgram Has Halted";
 char end = 0;
 // Main Execution Loop
 int main(void) {
