@@ -26,21 +26,24 @@ int main(void) {
 
 
 void USART1_IRQHandler() {
-	//printf("IRQ1\r\n");
+	printf("IRQ1\r\n");
 	HAL_UART_IRQHandler(&USB_UART);
 }
 
 void USART6_IRQHandler() {
 	//printf("IRQ6\r\n");
 	HAL_UART_IRQHandler(&U6);
+	//printf("out\n\r");
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+	printf("callback");
 	if (huart->Instance == USART1){
 		HAL_UART_Receive_IT(&USB_UART, (uint8_t*) &input, 1); //My User
+
 		if (input[0]){
-			HAL_UART_Transmit_IT(&U6, (uint8_t*) &input, 1);
-			HAL_UART_Transmit_IT(&USB_UART, (uint8_t*) &input, 1);
+			HAL_UART_Transmit(&U6, (uint8_t*) input, 1, 10);
+			//HAL_UART_Transmit_IT(&USB_UART, (uint8_t*) input, 1);
 			input[0] = 0;
 		}
 	}
