@@ -6,6 +6,7 @@
 
 UART_HandleTypeDef U6; //Handle type structure for USART6
 char input[4];
+int end = 0;
 // Main Execution Loop
 int main(void) {
 	//Initialize the system
@@ -20,13 +21,16 @@ int main(void) {
 	HAL_UART_Receive_IT (&USB_UART, (uint8_t*) input, 1);
 	HAL_UART_Receive_IT (&U6, (uint8_t*) input, 1);
 
-	while(1);
+	while(end == 0){
+	}
+
+	printf ("Program Has Halted"); fflush(stdout);
 
 }
 
 
 void USART1_IRQHandler() {
-	printf("IRQ1\r\n");
+	//printf("IRQ1\r\n");
 	HAL_UART_IRQHandler(&USB_UART);
 }
 
@@ -40,18 +44,25 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 	printf("callback");
 	if (huart->Instance == USART1){
 		HAL_UART_Receive_IT(&USB_UART, (uint8_t*) &input, 1); //My User
-
+		if (input[0] == '\033'){
+			end = 1;
+			return;
+		}
 		if (input[0]){
 			HAL_UART_Transmit(&U6, (uint8_t*) input, 1, 10);
-			//HAL_UART_Transmit_IT(&USB_UART, (uint8_t*) input, 1);
+			HAL_UART_Transmit(&USB_UART, (uint8_t*) &input, 1, 10);
 			input[0] = 0;
 		}
 	}
 
 	if (huart->Instance == USART6){
 		HAL_UART_Receive_IT(&U6, (uint8_t*) &input, 1); //Other User
+		if (input[0] == '\033'){
+			end = 1;
+			return;
+		}
 		if (input[0]){
-			HAL_UART_Transmit_IT(&USB_UART, (uint8_t*) &input, 1);
+			HAL_UART_Transmit(&USB_UART, (uint8_t*) &input, 1, 10);
 			input[0] = 0;
 		}
 	}
