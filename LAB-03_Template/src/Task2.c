@@ -21,7 +21,11 @@ int main(void) {
 	HAL_UART_Receive_IT (&USB_UART, (uint8_t*) input, 1);
 	HAL_UART_Receive_IT (&U6, (uint8_t*) input, 1);
 
-	while(end == 0){
+	while(1){
+		if (end == 1){
+			printf("Carried out");
+			break;
+		}
 	}
 
 	printf ("Program Has Halted"); fflush(stdout);
@@ -46,9 +50,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 		HAL_UART_Receive_IT(&USB_UART, (uint8_t*) &input, 1); //My User
 		if (input[0] == '\033'){
 			end = 1;
-			return;
 		}
-		if (input[0]){
+		else if (input[0]){
 			HAL_UART_Transmit(&U6, (uint8_t*) input, 1, 10);
 			HAL_UART_Transmit(&USB_UART, (uint8_t*) &input, 1, 10);
 			input[0] = 0;
@@ -59,9 +62,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 		HAL_UART_Receive_IT(&U6, (uint8_t*) &input, 1); //Other User
 		if (input[0] == '\033'){
 			end = 1;
-			return;
 		}
-		if (input[0]){
+		else if (input[0]){
 			HAL_UART_Transmit(&USB_UART, (uint8_t*) &input, 1, 10);
 			input[0] = 0;
 		}
