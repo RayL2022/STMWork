@@ -40,11 +40,39 @@ void configureSPI()
 void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 {
 	// SPI GPIO initialization structure here
+	GPIO_InitTypeDef  GPIO_InitStruct;
 
 	if (hspi->Instance == SPI2)
 	{
-		// Enable SPI GPIO port clocks, set HAL GPIO init structure's values for each
-		// SPI-related port pin (SPI port pin configuration), enable SPI IRQs (if applicable), etc.
+		// Enable GPIO Clocks
+		__GPIOA_CLK_ENABLE();
+		__GPIOJ_CLK_ENABLE();
+		__GPIOB_CLK_ENABLE();
+		__GPIOC_CLK_ENABLE();
+
+		GPIO_InitStruct.Pin       = GPIO_PIN_12;  //D13 SCLK
+		GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+		GPIO_InitStruct.Pull      = GPIO_PULLUP;
+		GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
+		GPIO_InitStruct.Alternate = GPIO_AF7_SPI2;
+		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+		// Initialize RX Pin
+		GPIO_InitStruct.Pin = GPIO_PIN_14;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStruct); //D12 SDO
+
+		GPIO_InitStruct.Pin = GPIO_PIN_15;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStruct); //D11 SDI
+
+		GPIO_InitStruct.Pin = GPIO_PIN_3;
+		HAL_GPIO_Init(GPIOJ, &GPIO_InitStruct); //J3 DEBUG
+
+		GPIO_InitStruct.Pin = GPIO_PIN_2;
+		HAL_GPIO_Init(GPIOC, &GPIO_InitStruct); //A2 CS
+
+		// Enable UART Clocking
+		__SPI2_CLK_ENABLE();
+
 	}
 }
 
