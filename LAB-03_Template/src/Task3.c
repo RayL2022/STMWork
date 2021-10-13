@@ -9,20 +9,25 @@
 //#include <stdio.h>
 //#include <stdlib.h>
 
+SPI_HandleTypeDef S2;
+uint8_t rx_buffer[10] = {};
+uint8_t tx_buffer[10] = {};
+
 /*
  * For convenience, configure the SPI handler here
  */
 // See 769 Description of HAL drivers.pdf, Ch. 58.1 or stm32f7xx_hal_spi.c
 void configureSPI()
 {
-//	[SPIHandler here].Instance = SPI2; // Please use SPI2!
-//	[SPIHandler here].Init.Mode = SPI_MODE_MASTER; // Set master mode
-//	[SPIHandler here].Init.TIMode = SPI_TIMODE_DISABLE; // Use Motorola mode, not TI mode
-/*
- * ... You get the idea.
- */
-
-	HAL_SPI_Init(&[SPIHandler here]);
+	S2.Instance = SPI2; // Please use SPI2!
+	S2.Init.Mode = SPI_MODE_MASTER; // Set master mode
+	S2.Init.TIMode = SPI_TIMODE_DISABLE; // Use Motorola mode, not TI mode
+	S2.Init.Direction = SPI_DIRECTION_2LINES; //2 separate lines, transmit and receive at same time
+	S2.Init.DataSize = SPI_DATASIZE_8BIT; //transfer/receive 8 bits at a time
+	S2.Init.NSS = SPI_NSS_SOFT; //Using software to select peripheral
+	S2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64; //~1.7 MHz ~ 1 Mhz given noise
+	S2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE; //Disable CRC
+	HAL_SPI_Init(&S2);
 	//
 	// Note: HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
 	//
@@ -79,14 +84,24 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 int main(void)
 {
 	Sys_Init();
+	HAL_Init();
 
-	// For convenience
 	configureSPI();
+	HAL_NVIC_EnableIRQ(SPI2_IRQn);
 
-	printf("Your code here!\r\n");
+	HAL_SPI_TransmitReceive_IT (&S2, (uint8_t*)&tx_buffer, (uint8_t*)&rx_buffer, 1);
 
 // See 769 Description of HAL drivers.pdf, Ch. 58.2.3 or stm32f7xx_hal_spi.c
 //
 //	HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, uint8_t *pTxData, uint8_t *pRxData, uint16_t Size, uint32_t Timeout)
 //
 }
+
+void SPI2_IRQHandler() {
+	HAL_SPI_IRQHandler(&S2);
+}
+
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi){
+
+}
+
