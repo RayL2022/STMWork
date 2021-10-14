@@ -10,8 +10,8 @@
 //#include <stdlib.h>
 
 SPI_HandleTypeDef S2;
-uint8_t rx_buffer[10] = {};
-uint8_t tx_buffer[10] = {};
+volatile uint8_t rx_buffer[10] = {};
+//uint8_t tx_buffer[10] = {1, 2};
 
 /*
  * For convenience, configure the SPI handler here
@@ -87,10 +87,18 @@ int main(void)
 	HAL_Init();
 
 	configureSPI();
+
 	HAL_NVIC_EnableIRQ(SPI2_IRQn);
+	HAL_NVIC_EnableIRQ(USART1_IRQn);
 
-	HAL_SPI_TransmitReceive_IT (&S2, (uint8_t*)&tx_buffer, (uint8_t*)&rx_buffer, 1);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
+	HAL_Delay(1);
+	HAL_SPI_Receive_IT (&S2, (uint8_t*)&rx_buffer, 1);
+	HAL_Delay(1);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
 
+	printf("Started On DISCO\r\n");
+	while(1);
 // See 769 Description of HAL drivers.pdf, Ch. 58.2.3 or stm32f7xx_hal_spi.c
 //
 //	HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, uint8_t *pTxData, uint8_t *pRxData, uint16_t Size, uint32_t Timeout)
@@ -98,10 +106,20 @@ int main(void)
 }
 
 void SPI2_IRQHandler() {
+	printf("Interrupt\r\n");
 	HAL_SPI_IRQHandler(&S2);
 }
 
-void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi){
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi){
+	printf("Callback\r\n");
 
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
+	HAL_Delay(1);
+	HAL_SPI_Receive (&S2, (uint8_t*)&rx_buffer, 1, 10);
+	HAL_UART_Transmit(&USB_UART, (uint8_t*) &rx_buffer, 1, 10);
+//	printf("%x",rx_buffer[0]);
+	HAL_SPI_Transmit (&S2, (uint8_t*)&rx_buffer, 1, 10);
+	HAL_Delay(1);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
 }
 
