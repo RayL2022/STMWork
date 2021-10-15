@@ -11,8 +11,7 @@
 //#include <stdlib.h>
 
 SPI_HandleTypeDef S2;
-volatile uint8_t rx_buffer[10] = {};
-//uint8_t tx_buffer[10] = {1, 2};
+char input;
 
 /*
  * For convenience, configure the SPI handler here
@@ -26,7 +25,7 @@ void configureSPI()
 	S2.Init.Direction = SPI_DIRECTION_2LINES; //2 separate lines, transmit and receive at same time
 	S2.Init.DataSize = SPI_DATASIZE_8BIT; //transfer/receive 8 bits at a time
 	S2.Init.NSS = SPI_NSS_SOFT; //Using software to select peripheral
-	S2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64; //~1.7 MHz ~ 1 Mhz given noise
+	S2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128; //~0.84 MHz ~ 1 Mhz given noise
 	S2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE; //Disable CRC
 	HAL_SPI_Init(&S2);
 	//
@@ -60,7 +59,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 		GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
 		GPIO_InitStruct.Pull      = GPIO_PULLUP;
 		GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
-		GPIO_InitStruct.Alternate = GPIO_AF7_SPI2;
+		GPIO_InitStruct.Alternate = GPIO_AF5_SPI2; //Has to be 5
 		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 		// Initialize RX Pin
@@ -92,19 +91,39 @@ int main(void)
 	HAL_NVIC_EnableIRQ(SPI2_IRQn);
 	HAL_NVIC_EnableIRQ(USART1_IRQn);
 
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
-	HAL_Delay(1);
-	HAL_SPI_Receive_IT (&S2, (uint8_t*)&rx_buffer, 1);
-	HAL_Delay(1);
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
+	input = 0;
+	while (1){
+		HAL_UART_Receive(&USB_UART, (uint8_t*) &input, 1, 10); //UART Input
+		if (input){
 
-	printf("Started On DISCO\r\n");
-	while(1);
+			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
+			HAL_Delay(1);
+			HAL_UART_Transmit(&U6, (uint8_t*) &input, 1, 10);
+			HAL_Delay(1);
+			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
+
+			HAL_UART_Transmit(&USB_UART, (uint8_t*) &input, 1, 2);
+			input = 0;
+		}
+
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
+		HAL_Delay(1);
+		HAL_SPI_Receive(&S2, (uint8_t*) &input, 1, 10); //SPI Input
+		HAL_Delay(1);
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
+
+		if (input){
+			HAL_UART_Transmit(&USB_UART, (uint8_t*) &input, 1, 10);
+			input = 0;
+		}
+	}
 // See 769 Description of HAL drivers.pdf, Ch. 58.2.3 or stm32f7xx_hal_spi.c
 //
 //	HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, uint8_t *pTxData, uint8_t *pRxData, uint16_t Size, uint32_t Timeout)
 //
 }
+
+/*
 
 void SPI2_IRQHandler() {
 	printf("Interrupt\r\n");
@@ -124,3 +143,4 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi){
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
 }
 
+*/
