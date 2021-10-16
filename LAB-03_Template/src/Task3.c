@@ -96,38 +96,38 @@ int main(void)
 		HAL_UART_Receive(&USB_UART, (uint8_t*) &input, 1, 10); //UART Input
 		if (input){
 
-			printf("Printing 1: %x\r\n", input);
+/*			printf("Printing 1: %x\r\n", input);
 			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
 			HAL_Delay(1);
 			HAL_SPI_Receive(&S2, (uint8_t*) &input, 1, 10);
 			HAL_Delay(1);
-			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
+			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);*/
 
-			printf("Printing 2: %x\r\n", input);
+			//printf("Printing 2: %x\r\n", input);
 			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
 			HAL_Delay(1);
 			HAL_SPI_Transmit(&S2, (uint8_t*) &input, 1, 10);
 			HAL_Delay(1);
 			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
 
-			printf("Printing 3: %x\r\n", input);
+			//printf("Printing 3: %x\r\n", input);
 			HAL_UART_Transmit(&USB_UART, (uint8_t*) &input, 1, 2);
-			input = 0;
+//			input = 0;
 
-			printf("\r\nPrinting 4: %x\r\n", input);
+			//printf("\r\nPrinting 4: %x\r\n", input);
 		}
 
-/*		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
 		HAL_Delay(1);
 		HAL_SPI_Receive(&S2, (uint8_t*) &input, 1, 10); //SPI Input
 		HAL_Delay(1);
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
 
-		printf("Printing this %x\r\n", input);
 		if (input){
+			//printf("\r\nPrinting 5: %x\r\n", input);
 			HAL_UART_Transmit(&USB_UART, (uint8_t*) &input, 1, 10);
 			input = 0;
-		}*/
+		}
 	}
 // See 769 Description of HAL drivers.pdf, Ch. 58.2.3 or stm32f7xx_hal_spi.c
 //
