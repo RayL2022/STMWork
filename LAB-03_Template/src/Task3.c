@@ -57,7 +57,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 
 		GPIO_InitStruct.Pin       = GPIO_PIN_12;  //D13 SCLK
 		GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-		GPIO_InitStruct.Pull      = GPIO_PULLUP;
+		GPIO_InitStruct.Pull      = GPIO_NOPULL;
 		GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
 		GPIO_InitStruct.Alternate = GPIO_AF5_SPI2; //Has to be 5
 		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -96,26 +96,38 @@ int main(void)
 		HAL_UART_Receive(&USB_UART, (uint8_t*) &input, 1, 10); //UART Input
 		if (input){
 
+			printf("Printing 1: %x\r\n", input);
 			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
 			HAL_Delay(1);
-			HAL_UART_Transmit(&U6, (uint8_t*) &input, 1, 10);
+			HAL_SPI_Receive(&S2, (uint8_t*) &input, 1, 10);
 			HAL_Delay(1);
 			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
 
+			printf("Printing 2: %x\r\n", input);
+			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
+			HAL_Delay(1);
+			HAL_SPI_Transmit(&S2, (uint8_t*) &input, 1, 10);
+			HAL_Delay(1);
+			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
+
+			printf("Printing 3: %x\r\n", input);
 			HAL_UART_Transmit(&USB_UART, (uint8_t*) &input, 1, 2);
 			input = 0;
+
+			printf("\r\nPrinting 4: %x\r\n", input);
 		}
 
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
+/*		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
 		HAL_Delay(1);
 		HAL_SPI_Receive(&S2, (uint8_t*) &input, 1, 10); //SPI Input
 		HAL_Delay(1);
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
 
+		printf("Printing this %x\r\n", input);
 		if (input){
 			HAL_UART_Transmit(&USB_UART, (uint8_t*) &input, 1, 10);
 			input = 0;
-		}
+		}*/
 	}
 // See 769 Description of HAL drivers.pdf, Ch. 58.2.3 or stm32f7xx_hal_spi.c
 //
