@@ -75,8 +75,8 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 		GPIO_InitStruct.Pin = GPIO_PIN_3;
 		HAL_GPIO_Init(GPIOJ, &GPIO_InitStruct); //J3 DEBUG
 
-		GPIO_InitStruct.Pin = GPIO_PIN_2;
-		HAL_GPIO_Init(GPIOC, &GPIO_InitStruct); //A2 CS
+		GPIO_InitStruct.Pin = GPIO_PIN_11;
+		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); //A11 CS
 
 		// Enable SPI Clocking
 		__SPI2_CLK_ENABLE();
