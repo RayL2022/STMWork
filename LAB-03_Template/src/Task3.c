@@ -3,7 +3,6 @@
 //----------------------------------
 //
 
-//Test
 #include "init.h"
 
 // If needed:
@@ -96,7 +95,7 @@ int main(void)
 			//Transmit data from input, transmit (store) in spi_data
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
 			HAL_Delay(1);
-			HAL_SPI_TransmitReceive(&S2, (uint8_t*) &input, (uint8_t*) &spi_data, 1, 10);
+			HAL_SPI_TransmitReceive(&S2, (uint8_t*) &input, (uint8_t*) &spi_data, 1, 1000);
 			HAL_Delay(1);
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET);
 
