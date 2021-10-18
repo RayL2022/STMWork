@@ -18,13 +18,13 @@ uint8_t reg;
 uint8_t spi_data;
 
 //Function Prototypes
-void write_to_reg(SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t send_data);
-void read_from_reg (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data);
-void read_terminal_char (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data);
-void read_version (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data);
-void get_temp(SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data);
-void reset_device (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data);
-void change_id (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data);
+void write_to_reg(uint8_t reg, uint8_t send_data);
+void read_from_reg (uint8_t reg, uint8_t read_data);
+void read_terminal_char (uint8_t reg, uint8_t read_data);
+void read_version (uint8_t reg, uint8_t read_data);
+void get_temp(uint8_t reg, uint8_t read_data);
+void reset_device (uint8_t reg, uint8_t read_data);
+void change_id (uint8_t reg, uint8_t read_data);
 
 /*
  * For convenience, configure the SPI handler here
@@ -109,7 +109,7 @@ int main(void)
 	while(1){
 		//Check for input from keyboard
 		HAL_UART_Receive (&USB_UART, &input, 1, 10);
-		if (input = "\033"){
+		if ((char)input == '\033'){
 			printf("\033[2J"); fflush(stdout);
 			printf("Menu Selection:\r\n");
 			printf("Press the Number of the Function you would like to perform with the SPI\r\n");
@@ -121,19 +121,19 @@ int main(void)
 
 			HAL_UART_Receive (&USB_UART, &input, 1, 10);
 			if (input == 2){
-				read_terminal_char(&S2, reg, spi_data);
+				read_terminal_char(reg, spi_data);
 			}
 			else if (input  == 3){
-				read_version(&S2, reg, spi_data);
+				read_version(reg, spi_data);
 			}
 			else if (input == 4){
-				get_temp(&S2, reg, spi_data);
+				get_temp(reg, spi_data);
 			}
 			else if (input == 5){
-				reset_device(&S2, reg, spi_data);
+				reset_device(reg, spi_data);
 			}
 			else if (input == 6){
-				change_id(&S2, reg, spi_data);
+				change_id(reg, spi_data);
 			}
 			else{
 				printf("Invalid number/character pressed, please press <ESC> again\r\n");
@@ -150,10 +150,10 @@ int main(void)
 
 			//Trying to Write to Register 5, the input character
 			reg = 0x05;
-			write_to_reg(&S2, reg, input);
+			write_to_reg(reg, input);
 
 			//Trying to Read Register 5, which should have the input character
-			read_from_reg(&S2, reg, spi_data);
+			read_from_reg(reg, spi_data);
 
 			input = 0; //Clear
 			reg = 0;
@@ -172,12 +172,12 @@ int main(void)
 
 //Looks to be working
 //Write to SPI on specified register, write the send_data in that register
-void write_to_reg(SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t send_data){
+void write_to_reg(uint8_t reg, uint8_t send_data){
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
 	HAL_Delay(1);
-	HAL_SPI_Transmit(&hspi, &reg, 1,  1000);
+	HAL_SPI_Transmit(&S2, &reg, 1,  1000);
 	HAL_Delay(1);
-	HAL_SPI_Transmit(&hspi, &send_data, 1,  1000);
+	HAL_SPI_Transmit(&S2, &send_data, 1,  1000);
 	HAL_Delay(1);
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET);
 	HAL_Delay(1);
@@ -185,7 +185,7 @@ void write_to_reg(SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t send_data){
 
 //Needs help
 //Read from SPI on specified register, store received data in read_data variable
-void read_from_reg (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data){
+void read_from_reg (uint8_t reg, uint8_t read_data){
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
 	HAL_Delay(1);
 	HAL_SPI_Transmit(&S2, &reg, 1,  100);
@@ -198,29 +198,29 @@ void read_from_reg (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data){
 
 //Option 2, Receive terminal characters from the peripheral device using SPI.
 //The received characters should be printed on the bottom half of the controller’s terminal.
-void read_terminal_char (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data){
+void read_terminal_char (uint8_t reg, uint8_t read_data){
 
 }
 
 //Option 3, Read the peripheral’s firmware version upon startup.
-void read_version (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data){
+void read_version (uint8_t reg, uint8_t read_data){
 
 }
 
 //Option 4, Trigger a temperature measurement and retrieve the result when it is ready.
 //The temperature should be printed on the right side of the terminal to avoid the transmitted
 //and received terminal characters.
-void get_temp(SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data){
+void get_temp(uint8_t reg, uint8_t read_data){
 
 }
 
 //Option 5, Clear or reset the peripheral terminal.
-void reset_device (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data){
+void reset_device (uint8_t reg, uint8_t read_data){
 
 }
 
 //Option 6, Change the device ID of the peripheral.
-void change_id (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data){
+void change_id (uint8_t reg, uint8_t read_data){
 
 }
 
