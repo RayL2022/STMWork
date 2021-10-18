@@ -15,16 +15,20 @@
 SPI_HandleTypeDef S2;
 uint8_t input;
 uint8_t reg;
+uint8_t reg2;
 uint8_t spi_data;
+uint8_t spi_data2;
+uint8_t unlock;
 
 //Function Prototypes
 void write_to_reg(uint8_t reg, uint8_t send_data);
-void read_from_reg (uint8_t reg, uint8_t read_data);
+void read_from_reg (uint8_t reg, uint8_t* read_data);
 void read_terminal_char (uint8_t reg, uint8_t read_data);
-void read_version (uint8_t reg, uint8_t read_data);
+void read_version (uint8_t reg1, uint8_t reg2, uint8_t read_data1, uint8_t read_data2);
 void get_temp(uint8_t reg, uint8_t read_data);
 void reset_device (uint8_t reg, uint8_t read_data);
-void change_id (uint8_t reg, uint8_t read_data);
+void change_id (uint8_t reg1, uint8_t reg2, uint8_t read_data, uint8_t key);
+
 
 /*
  * For convenience, configure the SPI handler here
@@ -72,10 +76,14 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 		__GPIOB_CLK_ENABLE();
 		__GPIOC_CLK_ENABLE();
 
-		GPIO_InitStruct.Pin       = GPIO_PIN_12;  //D13 SCLK
-		GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+		GPIO_InitStruct.Mode      = GPIO_MODE_OUTPUT_PP;
 		GPIO_InitStruct.Pull      = GPIO_NOPULL;
 		GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
+		GPIO_InitStruct.Pin = GPIO_PIN_11;
+		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); //A11 CS
+
+		GPIO_InitStruct.Pin       = GPIO_PIN_12;  //D13 SCLK
+		GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
 		GPIO_InitStruct.Alternate = GPIO_AF5_SPI2; //Has to be 5
 		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -89,8 +97,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 		GPIO_InitStruct.Pin = GPIO_PIN_3;
 		HAL_GPIO_Init(GPIOJ, &GPIO_InitStruct); //J3 DEBUG
 
-		GPIO_InitStruct.Pin = GPIO_PIN_11;
-		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); //A11 CS
+
 
 		// Enable SPI Clocking
 		__SPI2_CLK_ENABLE();
@@ -127,16 +134,25 @@ int main(void)
 				read_terminal_char(reg, spi_data);
 			}
 			else if (input  == 3){
-				read_version(reg, spi_data);
+				reg = 0x07;
+				reg2 = 0x08;
+				read_version(reg, reg2, spi_data, spi_data2);
+				printf("[%c].[%c]", spi_data, spi_data2);
 			}
 			else if (input == 4){
 				get_temp(reg, spi_data);
 			}
 			else if (input == 5){
+				spi_data = 0x01;
+				reg = 0x00;
 				reset_device(reg, spi_data);
 			}
 			else if (input == 6){
-				change_id(reg, spi_data);
+				unlock = 0x80;
+				reg = 0x00;
+				reg2 = 0x09;
+				spi_data = 11;
+				change_id(reg, reg2, spi_data, unlock);
 			}
 			else{
 				printf("Invalid number/character pressed, please press <ESC> again\r\n");
@@ -156,7 +172,7 @@ int main(void)
 			write_to_reg(reg, input);
 
 			//Trying to Read Register 5, which should have the input character
-			read_from_reg(reg, spi_data);
+			read_from_reg(reg, &spi_data);
 
 			input = 0; //Clear
 			reg = 0;
@@ -188,12 +204,13 @@ void write_to_reg(uint8_t reg, uint8_t send_data){
 
 //Needs help
 //Read from SPI on specified register, store received data in read_data variable
-void read_from_reg (uint8_t reg, uint8_t read_data){
+void read_from_reg (uint8_t reg, uint8_t* read_data){
+
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
 	HAL_Delay(1);
 	HAL_SPI_Transmit(&S2, &reg, 1,  100);
 	HAL_Delay(1);
-	HAL_SPI_Receive(&S2, &read_data, 1,  100);
+	HAL_SPI_Receive(&S2, read_data, 1,  100);
 	HAL_Delay(1);
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET);
 	HAL_Delay(1);
@@ -206,7 +223,11 @@ void read_terminal_char (uint8_t reg, uint8_t read_data){
 }
 
 //Option 3, Read the peripheral’s firmware version upon startup.
-void read_version (uint8_t reg, uint8_t read_data){
+void read_version (uint8_t reg1, uint8_t reg2, uint8_t read_data1, uint8_t read_data2){
+	//Read V_MAJ
+	read_from_reg(reg1, &read_data1);
+	//Read V_MIN
+	read_from_reg(reg2, &read_data2);
 
 }
 
@@ -219,11 +240,14 @@ void get_temp(uint8_t reg, uint8_t read_data){
 
 //Option 5, Clear or reset the peripheral terminal.
 void reset_device (uint8_t reg, uint8_t read_data){
-
+	write_to_reg(reg, read_data);
 }
 
 //Option 6, Change the device ID of the peripheral.
-void change_id (uint8_t reg, uint8_t read_data){
-
+void change_id (uint8_t reg1, uint8_t reg2, uint8_t read_data, uint8_t key){
+	//Unlock
+	write_to_reg(reg1, key);
+	//Set New ID
+	write_to_reg(reg2, read_data);
 }
 
