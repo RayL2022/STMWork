@@ -13,8 +13,9 @@
 //#include <stdlib.h>
 
 SPI_HandleTypeDef S2;
-char input;
-char spi_data;
+uint8_t input;
+uint8_t reg;
+uint8_t spi_data;
 
 /*
  * For convenience, configure the SPI handler here
@@ -30,7 +31,11 @@ void configureSPI()
 	S2.Init.NSS = SPI_NSS_SOFT; //Using software to select peripheral
 	S2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128; //~0.84 MHz ~ 1 Mhz given noise
 	S2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE; //Disable CRC
+	S2.Init.CLKPhase = SPI_PHASE_2EDGE;
+	S2.Init.CLKPolarity = SPI_POLARITY_LOW;
+	S2.Init.FirstBit = SPI_FIRSTBIT_MSB;
 	HAL_SPI_Init(&S2);
+
 	//
 	// Note: HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
 	//
@@ -88,75 +93,55 @@ int main(void)
 {
 	Sys_Init();
 	HAL_Init();
-	Init_Timer();
+	//Init_Timer();
 	configureSPI();
 
 	input = 0; //Initialize to 0
 
 	while(1){
 		//Check for input from keyboard
-		HAL_UART_Receive (&USB_UART, (uint8_t*) &input, 1, 10);
+		HAL_UART_Receive (&USB_UART, &input, 1, 10);
 		if (input){ //Key was pressed
 			printf("\033[0;0H"); fflush(stdout); //Top of terminal
 			//Display the data that was input to terminal
-			HAL_UART_Transmit (&USB_UART, (uint8_t*) &input, 1, 10);
-			//Transmit data from input, transmit (store) in spi_data
-			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
-			elapsed=0;
-			while(elapsed<1);
-			elapsed=0;
-			HAL_SPI_TransmitReceive(&S2, (uint8_t*) &input, (uint8_t*) &spi_data, 1, 1000);
-			elapsed=0;
-			while(elapsed<1);
-			elapsed=0;
+			HAL_UART_Transmit (&USB_UART, &input, 1, 10);
+
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET);
+			HAL_Delay(1);
+
+			reg = 0x05;
+			//reg = 0x00;
+			//Write Data (Reg first, data next)
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
+			HAL_Delay(1);
+			HAL_SPI_Transmit(&S2, &reg, 1,  1000);
+			HAL_Delay(1);
+			HAL_SPI_Transmit(&S2, &input, 1,  1000);
+			HAL_Delay(1);
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET);
+			HAL_Delay(1);
+
+			reg = 0x05;
+			//Try to Read Data (Reg first, where to receive read data)
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
+			HAL_Delay(1);
+			HAL_SPI_Transmit(&S2, &reg, 1,  100);
+			HAL_Delay(1);
+			HAL_SPI_Receive(&S2, &spi_data, 1,  100);
+			HAL_Delay(1);
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET);
+			HAL_Delay(1);
+
 			input = 0; //Clear
+			reg = 0;
 		}
 
 		if (spi_data){ //We have valid spi_data
 			printf("\033[12;0H"); fflush(stdout); //bottom half of terminal
 			//Display data from SPI to the terminal
-			HAL_UART_Transmit (&USB_UART, (uint8_t*) &spi_data, 1, 10);
+			HAL_UART_Transmit (&USB_UART, &spi_data, 1, 10);
 			spi_data = 0; //Clear
 		}
 	}
 
-
-
 }
-
-
-void Init_Timer() {
-	__HAL_RCC_TIM7_CLK_ENABLE(); //Enable the TIM7 peripheral
-
-	htim7.Instance = TIM7;
-	htim7.Init.Prescaler = 9;
-	htim7.Init.Period = 107; //.1sec
-
-	HAL_NVIC_EnableIRQ(TIM7_IRQn);
-
-	HAL_TIM_Base_Init(&htim7); //Configure the timer
-	HAL_TIM_Base_Start_IT(&htim7); //Start the timer
-}
-
-
-// -- ISRs (IRQs) -------------
-//
-void TIM7_IRQHandler() {
-	elapsed++;  //increment the variable for time elapsed
-	HAL_TIM_IRQHandler(&htim7);
-}
-
-
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-// This callback is automatically called by the HAL on the UEV event
-	if(htim->Instance == TIM7){
-		timeUpdated = 1;  //set variable to 1 if TIM7 is being used for this callback
-	}
-
-	}
-
-
-void HAL_TIMEx_BreakCallback(TIM_HandleTypeDef *htim){}
-void HAL_TIMEx_CommutationCallback(TIM_HandleTypeDef *htim){}
