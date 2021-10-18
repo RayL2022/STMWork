@@ -2,7 +2,7 @@
  * Task4.c
  *
  *  Created on: Oct 16, 2021
- *      Author: Shayne
+ *      Author: Shayne & Ray
  */
 
 
@@ -16,6 +16,15 @@ SPI_HandleTypeDef S2;
 uint8_t input;
 uint8_t reg;
 uint8_t spi_data;
+
+//Function Prototypes
+void write_to_reg(SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t send_data);
+void read_from_reg (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data);
+void read_terminal_char (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data);
+void read_version (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data);
+void get_temp(SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data);
+void reset_device (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data);
+void change_id (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data);
 
 /*
  * For convenience, configure the SPI handler here
@@ -93,7 +102,6 @@ int main(void)
 {
 	Sys_Init();
 	HAL_Init();
-	//Init_Timer();
 	configureSPI();
 
 	input = 0; //Initialize to 0
@@ -101,7 +109,38 @@ int main(void)
 	while(1){
 		//Check for input from keyboard
 		HAL_UART_Receive (&USB_UART, &input, 1, 10);
-		if (input){ //Key was pressed
+		if (input = "\033"){
+			printf("\033[2J"); fflush(stdout);
+			printf("Menu Selection:\r\n");
+			printf("Press the Number of the Function you would like to perform with the SPI\r\n");
+			printf("2) Receive any Terminal Characters in SPI\t\n");
+			printf("3) Display the Firmware\r\n");
+			printf("4) Get a Temperature Measurement\r\n");
+			printf("5) Reset/Clear Peripheral Terminal\r\n");
+			printf("6) Change device ID\r\n");
+
+			HAL_UART_Receive (&USB_UART, &input, 1, 10);
+			if (input == 2){
+				read_terminal_char(&S2, reg, spi_data);
+			}
+			else if (input  == 3){
+				read_version(&S2, reg, spi_data);
+			}
+			else if (input == 4){
+				get_temp(&S2, reg, spi_data);
+			}
+			else if (input == 5){
+				reset_device(&S2, reg, spi_data);
+			}
+			else if (input == 6){
+				change_id(&S2, reg, spi_data);
+			}
+			else{
+				printf("Invalid number/character pressed, please press <ESC> again\r\n");
+			}
+		}
+
+		else if (input){ //Key was pressed that wasn't escape
 			printf("\033[0;0H"); fflush(stdout); //Top of terminal
 			//Display the data that was input to terminal
 			HAL_UART_Transmit (&USB_UART, &input, 1, 10);
@@ -109,39 +148,79 @@ int main(void)
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET);
 			HAL_Delay(1);
 
+			//Trying to Write to Register 5, the input character
 			reg = 0x05;
-			//reg = 0x00;
-			//Write Data (Reg first, data next)
-			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
-			HAL_Delay(1);
-			HAL_SPI_Transmit(&S2, &reg, 1,  1000);
-			HAL_Delay(1);
-			HAL_SPI_Transmit(&S2, &input, 1,  1000);
-			HAL_Delay(1);
-			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET);
-			HAL_Delay(1);
+			write_to_reg(&S2, reg, input);
 
-			reg = 0x05;
-			//Try to Read Data (Reg first, where to receive read data)
-			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
-			HAL_Delay(1);
-			HAL_SPI_Transmit(&S2, &reg, 1,  100);
-			HAL_Delay(1);
-			HAL_SPI_Receive(&S2, &spi_data, 1,  100);
-			HAL_Delay(1);
-			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET);
-			HAL_Delay(1);
+			//Trying to Read Register 5, which should have the input character
+			read_from_reg(&S2, reg, spi_data);
 
 			input = 0; //Clear
 			reg = 0;
+
+			if (spi_data){ //We have valid spi_data
+				printf("\033[12;0H"); fflush(stdout); //bottom half of terminal
+				//Display data from SPI to the terminal
+				HAL_UART_Transmit (&USB_UART, &spi_data, 1, 10);
+				spi_data = 0; //Clear
+			}
 		}
 
-		if (spi_data){ //We have valid spi_data
-			printf("\033[12;0H"); fflush(stdout); //bottom half of terminal
-			//Display data from SPI to the terminal
-			HAL_UART_Transmit (&USB_UART, &spi_data, 1, 10);
-			spi_data = 0; //Clear
-		}
 	}
 
 }
+
+//Looks to be working
+//Write to SPI on specified register, write the send_data in that register
+void write_to_reg(SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t send_data){
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
+	HAL_Delay(1);
+	HAL_SPI_Transmit(&hspi, &reg, 1,  1000);
+	HAL_Delay(1);
+	HAL_SPI_Transmit(&hspi, &send_data, 1,  1000);
+	HAL_Delay(1);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET);
+	HAL_Delay(1);
+}
+
+//Needs help
+//Read from SPI on specified register, store received data in read_data variable
+void read_from_reg (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data){
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
+	HAL_Delay(1);
+	HAL_SPI_Transmit(&S2, &reg, 1,  100);
+	HAL_Delay(1);
+	HAL_SPI_Receive(&S2, &read_data, 1,  100);
+	HAL_Delay(1);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET);
+	HAL_Delay(1);
+}
+
+//Option 2, Receive terminal characters from the peripheral device using SPI.
+//The received characters should be printed on the bottom half of the controller’s terminal.
+void read_terminal_char (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data){
+
+}
+
+//Option 3, Read the peripheral’s firmware version upon startup.
+void read_version (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data){
+
+}
+
+//Option 4, Trigger a temperature measurement and retrieve the result when it is ready.
+//The temperature should be printed on the right side of the terminal to avoid the transmitted
+//and received terminal characters.
+void get_temp(SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data){
+
+}
+
+//Option 5, Clear or reset the peripheral terminal.
+void reset_device (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data){
+
+}
+
+//Option 6, Change the device ID of the peripheral.
+void change_id (SPI_HandleTypeDef *hspi, uint8_t reg, uint8_t read_data){
+
+}
+
