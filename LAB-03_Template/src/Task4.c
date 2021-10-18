@@ -119,7 +119,10 @@ int main(void)
 			printf("5) Reset/Clear Peripheral Terminal\r\n");
 			printf("6) Change device ID\r\n");
 
+			input = 0;
 			HAL_UART_Receive (&USB_UART, &input, 1, 10);
+			while (!input);
+
 			if (input == 2){
 				read_terminal_char(reg, spi_data);
 			}
