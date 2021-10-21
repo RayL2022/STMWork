@@ -1,7 +1,8 @@
 //----------------------------------
 // Lab 3 - Part 3: SPI - Lab03_spi.c
 //----------------------------------
-//
+//The purpose of this task is to configure and experiment with SPI communication using
+//a loopback condition.
 
 #include "init.h"
 
@@ -9,14 +10,12 @@
 //#include <stdio.h>
 //#include <stdlib.h>
 
-SPI_HandleTypeDef S2;
+SPI_HandleTypeDef S2; //Handle type structure for SPI2
+
 char input; //Input data from keyboard
 char spi_data; //Storage for SPI data
 
-/*
- * For convenience, configure the SPI handler here
- */
-// See 769 Description of HAL drivers.pdf, Ch. 58.1 or stm32f7xx_hal_spi.c
+//Necessary Configurations for SPI
 void configureSPI()
 {
 	S2.Instance = SPI2; // Please use SPI2!
@@ -28,21 +27,16 @@ void configureSPI()
 	S2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128; //~0.84 MHz ~ 1 Mhz given noise
 	S2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE; //Disable CRC
 	HAL_SPI_Init(&S2);
-
 }
 
-/*
- * This is called upon SPI initialization. It handles the configuration
- * of the GPIO pins for SPI.
- */
- // Do NOT change the name of an MspInit function; it needs to override a
- // __weak function of the same name. It does not need a prototype in the header.
+//This is called upon SPI initialization. It handles the configuration
+//of the GPIO pins for SPI.
 void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 {
 	// SPI GPIO initialization structure here
 	GPIO_InitTypeDef  GPIO_InitStruct;
 
-	if (hspi->Instance == SPI2)
+	if (hspi->Instance == SPI2) //Associated with SPI2
 	{
 		// Enable GPIO Clocks
 		__GPIOA_CLK_ENABLE();
@@ -50,26 +44,27 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 		__GPIOB_CLK_ENABLE();
 		__GPIOC_CLK_ENABLE();
 
-		GPIO_InitStruct.Pin       = GPIO_PIN_12;  //D13 SCLK
-		GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+		GPIO_InitStruct.Mode      = GPIO_MODE_OUTPUT_PP;
 		GPIO_InitStruct.Pull      = GPIO_NOPULL;
 		GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
+		GPIO_InitStruct.Pin = GPIO_PIN_11;
+		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); //A11 CS
+
+		GPIO_InitStruct.Pin       = GPIO_PIN_12;  //D13 SCLK
+		GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
 		GPIO_InitStruct.Alternate = GPIO_AF5_SPI2; //Has to be 5
 		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 		GPIO_InitStruct.Pin = GPIO_PIN_14;
-		HAL_GPIO_Init(GPIOB, &GPIO_InitStruct); //D12 MISO
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStruct); //D12 SDO
 
 		GPIO_InitStruct.Pin = GPIO_PIN_15;
-		HAL_GPIO_Init(GPIOB, &GPIO_InitStruct); //D11 MOSI
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStruct); //D11 SDI
 
 		GPIO_InitStruct.Pin = GPIO_PIN_3;
-		HAL_GPIO_Init(GPIOJ, &GPIO_InitStruct); //D7 DEBUG
+		HAL_GPIO_Init(GPIOJ, &GPIO_InitStruct); //J3 DEBUG
 
-		GPIO_InitStruct.Pin = GPIO_PIN_11;
-		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); //A11 CS
-
-		// Enable UART Clocking
+		// Enable SPI Clocking
 		__SPI2_CLK_ENABLE();
 
 	}
@@ -94,12 +89,13 @@ int main(void)
 
 			//Transmit data from input, transmit (store) in spi_data
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
-			HAL_Delay(1);
+			HAL_Delay(1);//Delay between pin state change
+			//Transmit input data and receive data in spi_data
 			HAL_SPI_TransmitReceive(&S2, (uint8_t*) &input, (uint8_t*) &spi_data, 1, 1000);
-			HAL_Delay(1);
+			HAL_Delay(1);//Delay between pin state change
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET);
 
-			input = 0; //Clear
+			input = 0; //Clear input
 
 		}
 
