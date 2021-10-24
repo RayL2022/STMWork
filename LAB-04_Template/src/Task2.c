@@ -6,46 +6,61 @@
 
 #include "init.h"
 
-void configureADC();
+DAC_HandleTypeDef D1;
+DAC_ChannelConfTypeDef D1_OUT;
+
+uint16_t dac_value;
+void configureDAC();
 
 // Main Execution Loop
 int main(void)
 {
 	//Initialize the system
 	Sys_Init();
-	configureADC();
+	configureDAC();
 
+	dac_value = 0;
+	HAL_DAC_Start(&D1, DAC_CHANNEL_1);
 	// Code goes here
+	while(1){
+		HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, dac_value);
+		if (dac_value < 4095){
+			dac_value++;
+		}
+		else{
+			dac_value = 0;
+		}
+		HAL_Delay(1);
+	}
 }
 
-void configureADC()
+void configureDAC()
 {
-	// Enable the ADC Clock.
+	// Enable the DAC Clock.
+	__DAC_CLK_ENABLE();
 
-	HAL_ADC_Init(...); // Initialize the ADC
+	D1.Instance = DAC;
+	HAL_DAC_Init(&D1); // Initialize the DAC
 
-	/* Available sampling times:
+	// Configure the DAC channel
+	D1_OUT.DAC_Trigger = DAC_TRIGGER_NONE;
+	D1_OUT.DAC_OutputBuffer = DAC_OUTPUTBUFFER_DISABLE;
+	HAL_DAC_ConfigChannel(&D1, &D1_OUT, DAC_CHANNEL_1);
 
-		ADC_SAMPLETIME_3CYCLES
-	  ADC_SAMPLETIME_15CYCLES
-		ADC_SAMPLETIME_28CYCLES
-		ADC_SAMPLETIME_56CYCLES
-		ADC_SAMPLETIME_84CYCLES
-		ADC_SAMPLETIME_112CYCLES
-		ADC_SAMPLETIME_144CYCLES
-		ADC_SAMPLETIME_480CYCLES
-
-	*/
-
-	// Configure the ADC channel
-
-	HAL_ADC_ConfigChannel(...,...);
 }
 
 
-void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
+void HAL_DAC_MspInit(DAC_HandleTypeDef *hdac)
 {
+	// GPIO init
+	GPIO_InitTypeDef  GPIO_InitStruct;
+	// Enable GPIO Clocks
+	__GPIOA_CLK_ENABLE();
 
-// GPIO init
+	GPIO_InitStruct.Pin		  = GPIO_PIN_4;
+	GPIO_InitStruct.Mode      = GPIO_MODE_ANALOG;
+	GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); //Port A, pin 4
 
 }
+
