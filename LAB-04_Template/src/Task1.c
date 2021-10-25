@@ -6,10 +6,13 @@
 
 #include "init.h"
 ADC_HandleTypeDef hadc1;
-int average = 0;
+int avg = 0;
+int total;
 int count = 0;
-int max = 0;
-int min = 0;
+int max = -100;
+int min = 10000;
+int i = 1;
+int slow = 0;
 
 void configureADC();
 void PB_config();
@@ -25,13 +28,35 @@ int main(void)
 	// Code goes here
 	HAL_ADC_Start(&hadc1);
 	while(1){
-		char msg[20];
+		count=0;
+		//char msg[20];
 		uint16_t rawValue;
-		float temp;
-		HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-		rawValue = HAL_ADC_GetValue(&hadc1);
-		sprintf(msg, "rawValue: %hu\r\n", rawValue);
-		HAL_UART_Transmit(&USB_UART, (uint8_t*) msg, strlen(msg), HAL_MAX_DELAY);
+		HAL_ADC_PollForConversion(&hadc1, 2000);
+		while (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_SET){
+			if (count == 0){
+				rawValue = HAL_ADC_GetValue(&hadc1);
+				total = (rawValue + total);
+				avg = total/i;
+				i = i + 1;
+				if (rawValue < min){
+					min = rawValue;
+				}
+				if (rawValue > max){
+					max = rawValue;
+				}
+
+				//sprintf(msg, "rawValue: %hu\r\n", rawValue);
+				printf("\033[2J"); fflush(stdout);
+				printf("\033[0;0HHex: %x\n\r", rawValue);
+				printf("Decimal: %d\n\r", rawValue);
+				printf("Max: %d\n\r", max);
+				printf("Min: %d\n\r", min);
+				printf("Average: %d\n\r", avg);
+				count = 1;
+			}
+
+			//HAL_UART_Transmit(&USB_UART, (uint8_t*) msg, strlen(msg), HAL_MAX_DELAY);
+		}
 
 	}
 }
@@ -87,7 +112,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 	GPIO_InitStruct.Pull      = GPIO_NOPULL;
 	GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
 	GPIO_InitStruct.Pin = GPIO_PIN_2;
-	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); //Pin C2, Arduino A2, ADC1, In 12
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct); //Pin C2, Arduino A2, ADC1, In 12
 
 }
 
