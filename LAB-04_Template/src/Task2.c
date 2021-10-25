@@ -23,6 +23,7 @@ int main(void)
 	HAL_DAC_Start(&D1, DAC_CHANNEL_1);
 	// Code goes here
 	while(1){
+		//Part 1 - SawTooth
 		HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, dac_value);
 		if (dac_value < 4095){
 			dac_value++;
@@ -30,7 +31,21 @@ int main(void)
 		else{
 			dac_value = 0;
 		}
-		HAL_Delay(1);
+
+		/*
+		//Part 2 - Symmetric Signals
+		dac_value = 0;
+		//Up part
+		while(dac_value < 4095){
+			HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, dac_value);
+			dac_value++;
+		}
+		//Bottom part
+		while(dac_value > 1){
+			HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, dac_value);
+			dac_value--;
+		}
+		*/
 	}
 }
 
