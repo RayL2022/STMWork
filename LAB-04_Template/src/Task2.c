@@ -30,7 +30,6 @@ int main(void)
 		else{
 			dac_value = 0;
 		}
-		HAL_Delay(1);
 	}
 }
 
