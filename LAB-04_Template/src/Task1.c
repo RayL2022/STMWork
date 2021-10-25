@@ -6,13 +6,15 @@
 
 #include "init.h"
 ADC_HandleTypeDef hadc1;
-int avg = 0;
-int total;
+ADC_ChannelConfTypeDef sConfig;
+double avg = 0;
+double total;
 int count = 0;
-int max = -100;
-int min = 10000;
+double max = -100;
+double min = 10000;
 int i = 1;
 int slow = 0;
+double calc;
 
 void configureADC();
 void PB_config();
@@ -34,28 +36,35 @@ int main(void)
 		HAL_ADC_PollForConversion(&hadc1, 2000);
 		while (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_SET){
 			if (count == 0){
-				rawValue = HAL_ADC_GetValue(&hadc1);
-				total = (rawValue + total);
+				rawValue = (float) HAL_ADC_GetValue(&hadc1);
+				calc = (rawValue*3.3)/4095;
+				if (calc < 0){
+					calc = 0;
+				}
+				if (calc > 3.3){
+					calc = 3.3;
+				}
+				total = (calc + total);
 				avg = total/i;
 				i = i + 1;
-				if (rawValue < min){
-					min = rawValue;
+				rawValue = (float)rawValue;
+				if (calc < min){
+					min = calc;
 				}
-				if (rawValue > max){
-					max = rawValue;
+				if (calc > max){
+					max = calc;
 				}
 
-				//sprintf(msg, "rawValue: %hu\r\n", rawValue);
 				printf("\033[2J"); fflush(stdout);
 				printf("\033[0;0HHex: %x\n\r", rawValue);
-				printf("Decimal: %d\n\r", rawValue);
-				printf("Max: %d\n\r", max);
-				printf("Min: %d\n\r", min);
-				printf("Average: %d\n\r", avg);
+				printf("Decimal: %.5f\n\r", calc);
+				printf("Max: %.5f\n\r", max);
+				printf("Min: %.5f\n\r", min);
+				printf("Average: %.5f\n\r", avg);
 				count = 1;
 			}
 
-			//HAL_UART_Transmit(&USB_UART, (uint8_t*) msg, strlen(msg), HAL_MAX_DELAY);
+
 		}
 
 	}
@@ -64,8 +73,7 @@ int main(void)
 void configureADC()
 {
 	// Enable the ADC Clock.
-	 __HAL_RCC_ADC1_CLK_ENABLE();
-	 ADC_ChannelConfTypeDef sConfig;
+	__HAL_RCC_ADC1_CLK_ENABLE();
 
 
 	 /* Configure the global features of the ADC (Clock, Resolution, Data Alignment and number
@@ -95,7 +103,7 @@ void configureADC()
 	 /* Configure for the selected ADC regular channel its corresponding rank in the sequence\r
 	 Analog-To-Digital Conversion 406
 	 and its sample time. */
-	 sConfig.Channel = ADC_CHANNEL_14;
+	 sConfig.Channel = ADC_CHANNEL_12;
 	 sConfig.Rank = 1;
 	 sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
 	 HAL_ADC_ConfigChannel(&hadc1, &sConfig);
