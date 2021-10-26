@@ -6,46 +6,33 @@
 
 #include "init.h"
 
-void configureADC();
-
+int result1;
 // Main Execution Loop
 int main(void)
 {
 	//Initialize the system
 	Sys_Init();
-	configureADC();
 
-	// Code goes here
-}
+	//Task 3 - Task Set 2 - #1
+	asm("LDR r2, =0x00000018"); //24 in reg 2
+	asm("LDR r3, =0x0000001A"); // 26 in reg 3
+	asm("ADD r4, r2, r3"); //Add 24 + 26, store in reg 4
 
-void configureADC()
-{
-	// Enable the ADC Clock.
+	asm("STR r4,%0" : "=m" (result1));
+	printf("%d", result1); fflush(stdout);
 
-	HAL_ADC_Init(...); // Initialize the ADC
+	//Task 3 - Task Set 2 - #2
+	float num1, num2, result2;
+	num1 = 0.5;
+	num2 = 1.5;
 
-	/* Available sampling times:
-
-		ADC_SAMPLETIME_3CYCLES
-	  ADC_SAMPLETIME_15CYCLES
-		ADC_SAMPLETIME_28CYCLES
-		ADC_SAMPLETIME_56CYCLES
-		ADC_SAMPLETIME_84CYCLES
-		ADC_SAMPLETIME_112CYCLES
-		ADC_SAMPLETIME_144CYCLES
-		ADC_SAMPLETIME_480CYCLES
-
-	*/
-
-	// Configure the ADC channel
-
-	HAL_ADC_ConfigChannel(...,...);
-}
+	asm("VMUL.F32 %[result], %[oper1], %[oper2]"
+		: [result] "+t" (result)
+		: [oper1] "t" (num1), [oper2] "t" (num2));
 
 
-void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
-{
 
-// GPIO init
 
+	while(1){
+	}
 }
