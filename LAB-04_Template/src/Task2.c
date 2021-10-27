@@ -10,15 +10,6 @@ DAC_HandleTypeDef D1;
 DAC_ChannelConfTypeDef D1_OUT;
 ADC_HandleTypeDef hadc1;
 ADC_ChannelConfTypeDef sConfig;
-double avg = 0;
-double total;
-int count = 0;
-double max = -100;
-double min = 10000;
-int i = 1;
-int slow = 0;
-double calc;
-double dac_value;
 uint16_t rawValue;
 
 void configureADC();
@@ -35,19 +26,10 @@ int main(void)
 	PB_config();
 
 	dac_value = 0;
-	//HAL_ADC_Start(&hadc1);
-	//HAL_DAC_Start(&D1, DAC_CHANNEL_1);
 	// Code goes here
 	while(1){
-		HAL_ADC_Start(&hadc1);
-		HAL_ADC_PollForConversion(&hadc1, 1000);
-		rawValue = HAL_ADC_GetValue(&hadc1);
-		HAL_DAC_Start(&D1, DAC_CHANNEL_1);
-		HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, rawValue);
-	}
-/*
 
-
+		/*
 		//Part 1 - SawTooth
 		HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, dac_value);
 		if (dac_value < 4095){
@@ -56,80 +38,15 @@ int main(void)
 		else{
 			dac_value = 0;
 		}
+		*/
 
-
-		count=0;
-		//char msg[20];
+		//Part 2 - Signals
+		HAL_ADC_Start(&hadc1);
 		HAL_ADC_PollForConversion(&hadc1, 1000);
-		//while (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_SET){
-			if (count == 0){
-				rawValue = HAL_ADC_GetValue(&hadc1);
-
-				dac_value = rawValue;
-				//dac_value = (calc*4096)/3.3;
-				HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, dac_value);
-
-				calc = (rawValue*3.3)/4095;
-				if (calc < 0){
-					calc = 0;
-				}
-				if (calc > 3.3){
-					calc = 3.3;
-				}
-				total = (calc + total);
-				avg = total/i;
-				i = i + 1;
-				rawValue = (float)rawValue;
-				if (calc < min){
-					min = calc;
-				}
-				if (calc > max){
-					max = calc;
-				}
-
-				printf("\033[2J"); fflush(stdout);
-				printf("\033[0;0HHex: %x\n\r", rawValue);
-				printf("Decimal: %.5f\n\r", calc);
-				printf("Max: %.5f\n\r", max);
-				printf("Min: %.5f\n\r", min);
-				printf("Average: %.5f\n\r", avg);
-				count = 1;
-			}
-
-			//Part 2 - Other Signals
-			dac_value = rawValue;
-			//dac_value = (calc*4096)/3.3;
-			HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, dac_value);
-
-
-			if (dac_value > 4095){
-				dac_value = 4095;
-			}
-			if (dac_value < 0){
-				dac_value = 0;
-			}
-
-			printf("dac: %f\r\n",dac_value);
-
-			//HAL_Delay(1);
-		//}
-		HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, dac_value);
-		//dac_value = rawValue;
-
-		printf("dac: %f\r\n",dac_value);
-
-		//Up part
-		while(dac_value < 4095){
-			HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, dac_value);
-			dac_value++;
-		}
-		//Bottom part
-		while(dac_value > 1){
-			HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, dac_value);
-			dac_value--;
-		}
-
-	}*/
+		rawValue = HAL_ADC_GetValue(&hadc1);
+		HAL_DAC_Start(&D1, DAC_CHANNEL_1);
+		HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, rawValue);
+	}
 }
 
 void configureDAC()
@@ -173,7 +90,7 @@ void configureADC()
 	 /* Configure the global features of the ADC (Clock, Resolution, Data Alignment and number
 	 of conversion) */
 	 hadc1.Instance = ADC1;
-	 hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
+	 hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
 	 hadc1.Init.Resolution = ADC_RESOLUTION_12B;
 	 hadc1.Init.ScanConvMode = DISABLE;
 	 hadc1.Init.ContinuousConvMode = ENABLE;
@@ -199,7 +116,7 @@ void configureADC()
 	 and its sample time. */
 	 sConfig.Channel = ADC_CHANNEL_12;
 	 sConfig.Rank = ADC_REGULAR_RANK_1;
-	 sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
+	 sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
 	 HAL_ADC_ConfigChannel(&hadc1, &sConfig);
 }
 
