@@ -6,13 +6,37 @@
 
 #include "init.h"
 
+//Result global variables
 int result1;
+volatile float result2;
+volatile float result3;
+volatile float result4;
+
+//Operands variables
+volatile float num1, num2, num3, num4, x;
+
+void do_task1(void);
+void do_task2(void);
+void do_task3(void);
+void do_task4(void);
+
 // Main Execution Loop
 int main(void)
 {
 	//Initialize the system
 	Sys_Init();
 
+	do_task1();
+	do_task2();
+	do_task3();
+	do_task4();
+
+
+	while(1){
+	}
+}
+
+void do_task1(void){
 	//Task 3 - Task Set 2 - #1
 	asm("LDR r2, =0x00000018"); //24 in reg 2
 	asm("LDR r3, =0x0000001A"); // 26 in reg 3
@@ -20,9 +44,10 @@ int main(void)
 
 	asm("STR r4,%0" : "=m" (result1)); //Store result of addition in result1
 	printf("Result 1: %d\r\n", result1); //Should be 50
+}
 
+void do_task2(void){
 	//Task 3 - Task Set 2 - #2
-	volatile float num1, num2, result2;
 	result2 = 0;
 	num1 = 0.5;
 	num2 = 1.5;
@@ -31,9 +56,10 @@ int main(void)
 		: [result] "+t" (result2) //Read and Written to register, result2
 		: [oper1] "t" (num1), [oper2] "t" (num2)); //Only read from num1, num2
 	printf("Result 2: %f\r\n", (double)result2); //Result2 should be 0.75
+}
 
+void do_task3(void){
 	//Task 3 - Task Set 2 - #3
-	volatile float x, num3, result3;
 	result3 = 0;
 	num1 = 2;
 	num2 = 3;
@@ -55,11 +81,12 @@ int main(void)
 			: [result] "+t" (result3)
 			: [oper1] "t" (result3), [oper2] "t" (num3));
 	printf("Result 3: %f\r\n", (double)result3); //Printing, total should be 6
+}
 
+void do_task4(void){
 	//Task 3 - Task Set 2 - #4
-	volatile float result4;
 	result4 = 0;
-	float num4 = 1;
+	num4 = 1;
 	//x = 3; //Distinction from #3, should be 7 for result
 
 	//Doesn't change, still need to divide by 3
@@ -77,8 +104,4 @@ int main(void)
 			: [result] "+t" (result4)
 			: [oper1] "t" (num4), [oper2] "t" (num3));
 	printf("Result 4: %f\r\n", (double)result4); //Printing, total should be 6, as shown in #3
-
-
-	while(1){
-	}
 }
