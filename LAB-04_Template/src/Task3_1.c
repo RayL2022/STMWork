@@ -13,7 +13,7 @@ volatile int32_t result3;
 volatile int32_t result4;
 
 //Operands variables
-volatile int32_t num1, num2, num3, num4, x;
+volatile int32_t num1, num2, num3, num4, num5, x;
 
 void do_task1(void);
 void do_task2(void);
@@ -25,11 +25,12 @@ int main(void)
 {
 	//Initialize the system
 	Sys_Init();
-
-	//do_task1();
-	//do_task2();
+	printf("\033[2J"); fflush(stdout);
+	printf("\033[0;0H"); fflush(stdout);
+	do_task1();
+	do_task2();
 	do_task3();
-	//do_task4();
+	do_task4();
 
 
 	while(1){
@@ -86,22 +87,20 @@ void do_task3(void){
 void do_task4(void){
 	//Task 3 - Task Set 1 - #4
 	result4 = 0;
+	num1 = 2;
+	num2 = 3;
+	num3 = 5;
 	num4 = 1;
-	//x = 3; //Distinction from #3, should be 7 for result
+	x=12;
 
-	//Doesn't change, still need to divide by 3
-	asm volatile ("DIV %[result], %[oper1], %[oper2]"
-			: [result] "+r" (num1)
-			: [oper1] "r" (num1), [oper2] "r" (num2));
-
-	//We can now multiply result with x and add to result sum
-	asm volatile ("MLA %[result], %[oper1], %[oper2]"
+	//Dividing x by 3
+	asm volatile ("SDIV %[result], %[oper1], %[oper2]"
 			: [result] "+r" (result4)
-			: [oper1] "r" (num1), [oper2] "r" (x));
+			: [oper1] "r" (x), [oper2] "r" (num2));
 
-	//Multiply 5 by 1 and Add to result (pure addition to result with MAC)
-	asm volatile ("MLA %[result], %[oper1], %[oper2]"
+	//Multiply result4 (=4) by num1 (=2), and add num3 to that value (=5)
+	asm volatile ("MLA %[result], %[oper1], %[oper2], %[oper3]"
 			: [result] "+r" (result4)
-			: [oper1] "r" (num4), [oper2] "r" (num3));
-	printf("Result 4: %ld\r\n", result4); //Printing, total should be 6, as shown in #3
+			: [oper1] "r" (result4), [oper2] "r" (num1), [oper3] "r" (num3));
+	printf("Result 4: %ld\r\n", result4); //Printing, total should be 13, as shown in #3
 }
