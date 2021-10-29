@@ -52,15 +52,21 @@ int main(void)
 		current_reading = HAL_ADC_GetValue(&hadc1);
 
 
+
+/*
 		//C - Style Floating Point Equation
 		current_output = 0.3125*current_reading + 0.240385*last_reading
 				+ 0.3125*second_last_reading + 0.296875*last_output;
 
+		//printf("C-Style: %f\r\n",current_output);
+*/
 
 
-/*
+
+
 		//Extended Assembly -
 
+		current_output = 0;
 		coeff1 = 0.3125;
 		coeff2 = 0.240385;
 		coeff3 = 0.3125;
@@ -82,10 +88,9 @@ int main(void)
 				: [result] "+&w" (current_output)
 				: [oper1] "w" (coeff4), [oper2] "w" (last_output));
 
-		*/
-
-
 		HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, current_output);
+
+		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_7);
 	}
 }
 
@@ -175,13 +180,13 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 
 }
 
-void PB_config(){
+void PB_config(){ //D0
 	GPIO_InitTypeDef GPIO_InitStruct;
-	__HAL_RCC_GPIOA_CLK_ENABLE();
-	GPIO_InitStruct.Mode      = GPIO_MODE_INPUT;
+	__HAL_RCC_GPIOC_CLK_ENABLE();
+	GPIO_InitStruct.Mode      = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull      = GPIO_NOPULL;
 	GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
-	GPIO_InitStruct.Pin = GPIO_PIN_0;
-	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); //A0 Blue PB
+	GPIO_InitStruct.Pin = GPIO_PIN_7;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct); //A0 Blue PB
 }
 
