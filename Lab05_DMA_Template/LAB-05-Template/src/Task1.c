@@ -2,6 +2,11 @@
 #include<stdint.h>
 #include<stdlib.h>
 
+DMA_HandleTypeDef hdma1;
+uint8_t buf1[20];
+uint8_t buf2[20];
+
+void configureDMA();
 
 int main(void)
 {
@@ -28,3 +33,21 @@ int main(void)
 
 	while(1);
 }
+
+
+void configureDMA(){
+	hdma1.Instance = DMA1_Channel4;
+	hdma1.Init.Direction = DMA_MEMORY_TO_PERIPH;
+	hdma1.Init.PeriphInc = DMA_PINC_DISABLE;
+	hdma1.Init.MemInc = DMA_MINC_ENABLE;
+	hdma1.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+	hdma1.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+	hdma1.Init.Mode = DMA_NORMAL;
+	hdma1.Init.Priority = DMA_PRIORITY_LOW;
+	//hdma1.XferCpltCallback = &DMATransferComplete;
+	HAL_DMA_Init(&hdma1);
+
+	HAL_NVIC_EnableIRQ(DMA1_Channel4_5_IRQn);
+}
+
+
