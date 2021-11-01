@@ -25,7 +25,8 @@ int main(void)
 	configureADC();
 	PB_config();
 
-	dac_value = 0;
+	HAL_ADC_Start(&hadc1);
+	HAL_DAC_Start(&D1, DAC_CHANNEL_1);
 	// Code goes here
 	while(1){
 
@@ -41,10 +42,8 @@ int main(void)
 		*/
 
 		//Part 2 - Signals
-		HAL_ADC_Start(&hadc1);
 		HAL_ADC_PollForConversion(&hadc1, 1000);
 		rawValue = HAL_ADC_GetValue(&hadc1);
-		HAL_DAC_Start(&D1, DAC_CHANNEL_1);
 		HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, rawValue);
 	}
 }

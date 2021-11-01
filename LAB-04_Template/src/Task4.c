@@ -180,7 +180,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 
 }
 
-void PB_config(){ //D0
+void PB_config(){ //Toggle Pin
 	GPIO_InitTypeDef GPIO_InitStruct;
 	__HAL_RCC_GPIOC_CLK_ENABLE();
 	GPIO_InitStruct.Mode      = GPIO_MODE_OUTPUT_PP;
