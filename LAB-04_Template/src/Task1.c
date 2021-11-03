@@ -89,15 +89,6 @@ void configureADC()
 
 	 HAL_ADC_Init(&hadc1); // Initialize the ADC
 
-//		ADC_SAMPLETIME_3CYCLES
-//		ADC_SAMPLETIME_15CYCLES
-//		ADC_SAMPLETIME_28CYCLES
-//		ADC_SAMPLETIME_56CYCLES
-//		ADC_SAMPLETIME_84CYCLES
-//		ADC_SAMPLETIME_112CYCLES
-//		ADC_SAMPLETIME_144CYCLES
-//		ADC_SAMPLETIME_480CYCLES
-
 	 /* Configure for the selected ADC regular channel its corresponding rank in the sequence\r
 	 Analog-To-Digital Conversion 406
 	 and its sample time. */
