@@ -76,12 +76,12 @@ void configureADC(){
 	 of conversion) */
 	 hadc1.Instance = ADC1;
 	 hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
-	 hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+	 hadc1.Init.Resolution = ADC_RESOLUTION_12B;	//Full 12-bit ADC Resolution
 	 hadc1.Init.ScanConvMode = DISABLE;
 	 hadc1.Init.ContinuousConvMode = ENABLE;
 	 hadc1.Init.DiscontinuousConvMode = DISABLE;
 	 hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-	 hadc1.Init.NbrOfConversion = 1;
+	 hadc1.Init.NbrOfConversion = 1;		//Single Conversion
 	 hadc1.Init.DMAContinuousRequests = DISABLE;
 	 hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
 
