@@ -68,11 +68,9 @@ int main(void)
 	}
 }
 
-void configureADC()
-{
+void configureADC(){
 	// Enable the ADC Clock.
 	__HAL_RCC_ADC1_CLK_ENABLE();
-
 
 	 /* Configure the global features of the ADC (Clock, Resolution, Data Alignment and number
 	 of conversion) */
@@ -89,12 +87,9 @@ void configureADC()
 
 	 HAL_ADC_Init(&hadc1); // Initialize the ADC
 
-	 /* Configure for the selected ADC regular channel its corresponding rank in the sequence\r
-	 Analog-To-Digital Conversion 406
-	 and its sample time. */
-	 sConfig.Channel = ADC_CHANNEL_12;
-	 sConfig.Rank = 1;
-	 sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+	 sConfig.Channel = ADC_CHANNEL_12; //Configure for Channel 12
+	 sConfig.Rank = 1;	//Rank 1
+	 sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;	//Set sampling time for 15 cycles
 	 HAL_ADC_ConfigChannel(&hadc1, &sConfig);
 }
 
