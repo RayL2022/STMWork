@@ -10,9 +10,11 @@ DAC_ChannelConfTypeDef D1_OUT;
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
 ADC_ChannelConfTypeDef sConfig;
+ADC_ChannelConfTypeDef sConfig2;
 
-volatile double get_value;
-volatile double get_value2;
+TIM_HandleTypeDef HTIM1; //Structure to store information for the Timer
+
+volatile double get_value[2];
 
 volatile double value1_in_volt;
 volatile double value2_in_volt;
@@ -29,14 +31,19 @@ volatile double second_last_output;
 volatile double third_last_output;
 volatile double fourth_last_output;
 
+volatile int flag_1;
+volatile int flag_2;
+
 void configureADC();
 void configureDAC();
+void Init_Timer();
 
 int main(void)
 {
 	Sys_Init();
 	configureDAC();
 	configureADC();
+    HAL_Init(); //Initialize HAL
 
 	current_reading = 0;
 	last_reading = 0;
@@ -45,23 +52,31 @@ int main(void)
 	fourth_last_reading = 0;
 	current_output = 0;
 
+	HAL_DAC_Start(&D1, DAC_CHANNEL_1);
     while (1)
     {
-    	fourth_last_reading = third_last_reading;
-    	third_last_reading = second_last_reading;
-    	second_last_reading = last_reading;
-    	last_reading = current_reading;
+		if (flag_1 == 0){
+			HAL_ADC_Start_IT(&hadc1);
+		}
+		if (flag_2 == 0){
+			HAL_ADC_Start_IT(&hadc2);
+		}
+    	if (flag_1 & flag_2){
+        	fourth_last_reading = third_last_reading;
+        	third_last_reading = second_last_reading;
+        	second_last_reading = last_reading;
+        	last_reading = current_reading;
 
-    	fourth_last_output = third_last_output;
-    	third_last_output = second_last_output;
-    	second_last_output = last_output;
-    	last_output = current_output;
-    	current_output = 0;
+        	fourth_last_output = third_last_output;
+        	third_last_output = second_last_output;
+        	second_last_output = last_output;
+        	last_output = current_output;
 
-        // Start ADC Conversion
-        HAL_ADC_Start_IT(&hadc1);
-        HAL_ADC_Start_IT(&hadc2);
-        HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, current_output);
+			HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, current_output);
+			flag_1 = 0;
+			flag_2 = 0;
+    	}
+
     }
 
 }
@@ -74,43 +89,43 @@ void configureADC()
 	__HAL_RCC_ADC3_CLK_ENABLE();
 	HAL_NVIC_EnableIRQ(ADC_IRQn);
 
-	 /* Configure the global features of the ADC (Clock, Resolution, Data Alignment and number
-	 of conversion) */
+	 //Configure the global features of the ADC (Clock, Resolution, Data Alignment and number
+	 //of conversion)
 	 hadc1.Instance = ADC1;
 	 hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
 	 hadc1.Init.Resolution = ADC_RESOLUTION_12B;
 	 hadc1.Init.ScanConvMode = DISABLE;
-	 hadc1.Init.ContinuousConvMode = ENABLE;
+	 hadc1.Init.ContinuousConvMode = DISABLE;
 	 hadc1.Init.DiscontinuousConvMode = DISABLE;
 	 hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
 	 hadc1.Init.NbrOfConversion = 1;
 	 hadc1.Init.DMAContinuousRequests = DISABLE;
 	 hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
 
-	 hadc2.Instance = ADC2;
+	 HAL_ADC_Init(&hadc1); // Initialize the ADC
+
+	 sConfig.Channel = ADC_CHANNEL_12;
+	 sConfig.Rank = ADC_REGULAR_RANK_1;
+	 sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+	 HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+
+	 hadc2.Instance = ADC3;
 	 hadc2.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
 	 hadc2.Init.Resolution = ADC_RESOLUTION_12B;
 	 hadc2.Init.ScanConvMode = DISABLE;
-	 hadc2.Init.ContinuousConvMode = ENABLE;
+	 hadc2.Init.ContinuousConvMode = DISABLE;
 	 hadc2.Init.DiscontinuousConvMode = DISABLE;
 	 hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
 	 hadc2.Init.NbrOfConversion = 1;
 	 hadc2.Init.DMAContinuousRequests = DISABLE;
 	 hadc2.Init.EOCSelection = ADC_EOC_SEQ_CONV;
 
-	 HAL_ADC_Init(&hadc1); // Initialize the ADC
 	 HAL_ADC_Init(&hadc2);
 
-	 /* Configure for the selected ADC regular channel its corresponding rank in the sequence\r
-	 Analog-To-Digital Conversion 406
-	 and its sample time. */
-	 sConfig.Channel = ADC_CHANNEL_12;
-	 sConfig.Rank = ADC_REGULAR_RANK_1;
-	 sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
-	 HAL_ADC_ConfigChannel(&hadc1, &sConfig);
-	 sConfig.Rank = ADC_REGULAR_RANK_2;
-	 sConfig.Channel = ADC_CHANNEL_6;
-	 HAL_ADC_ConfigChannel(&hadc2, &sConfig);
+	 sConfig2.Channel = ADC_CHANNEL_8;
+	 sConfig2.Rank = ADC_REGULAR_RANK_1;
+	 sConfig2.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+	 HAL_ADC_ConfigChannel(&hadc2, &sConfig2);
 
 }
 
@@ -121,7 +136,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 // GPIO init
 	GPIO_InitTypeDef GPIO_InitStruct;
 	__HAL_RCC_GPIOC_CLK_ENABLE();
-	__HAL_RCC_GPIOA_CLK_ENABLE();
+	__HAL_RCC_GPIOF_CLK_ENABLE();
 
 	GPIO_InitStruct.Mode      = GPIO_MODE_ANALOG;
 	GPIO_InitStruct.Pull      = GPIO_NOPULL;
@@ -129,8 +144,9 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 	GPIO_InitStruct.Pin = GPIO_PIN_2;
 	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct); //Pin C2, Arduino A2, ADC1, In 12
 
-	GPIO_InitStruct.Pin = GPIO_PIN_6;
-	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); //Pin A6, Arduino A0, ADC2, In 6
+
+	GPIO_InitStruct.Pin = GPIO_PIN_10;
+	HAL_GPIO_Init(GPIOF, &GPIO_InitStruct); //Pin A6, Arduino A3, ADC2, In 8
 
 
 
@@ -174,26 +190,30 @@ void ADC_IRQHandler(void) {
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-    // Read & Update The ADC Result
-    get_value = HAL_ADC_GetValue(&hadc1);
-    // Remove 1V DC bias ~ 1242
-    //get_value -= 1242;
-    //value1_in_volt = (get_value * 3.3)/4095;
+	if (hadc->Instance == ADC1){
+		get_value[0] = HAL_ADC_GetValue(&hadc1);
+		flag_1 = 1;
+	}
 
-    get_value2 = HAL_ADC_GetValue(&hadc2);
-    //get_value2 -= 1242;
-    //value2_in_volt = (get_value2 * 3.3)/4095;
+	if (hadc->Instance == ADC3){
+		get_value[1] = HAL_ADC_GetValue(&hadc2);
+		flag_2 = 1;
+	}
+	if (flag_1 & flag_2){
+		value1_in_volt = ((get_value[0] * 3.3)/4095);
+		value2_in_volt = ((get_value[1] * 3.3)/4095);
+		current_reading = value1_in_volt * value2_in_volt;
+		current_reading = ((current_reading * 4095) / 3.3);
+		if (current_reading > 4095){
+			current_reading = 4095;
+		}
+		//current_reading = get_value[0] * get_value[1];
+	    current_output = 0.001*current_reading - 0.002*second_last_reading
+	    		+ 0.001*fourth_last_reading + 3.166*last_output - 4.418*second_last_output
+				+ 3.028*third_last_output - 0.915*fourth_last_output;
 
-    //current_reading = (value1_in_volt * value2_in_volt);
-    current_reading = get_value * get_value2;
-    if (current_reading > 4096){
-    	current_reading = 4096;
-    }
-    //current_reading = ((current_reading / 3.3) * 4095) + 2484;
-
-    current_output = get_value2;
-/*    current_output = 0.001*current_reading - 0.002*second_last_reading
-    		+ 0.001*fourth_last_reading + 3.166*last_output - 4.418*second_last_output
-			+ 3.028*third_last_output - 0.915*fourth_last_output;*/
-
+	    //current_output = current_reading;
+	}
 }
+
+

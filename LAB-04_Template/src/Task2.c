@@ -1,8 +1,8 @@
 //--------------------------------
 // Lab 4 - Sample - Lab04_sample.c
 //--------------------------------
-//
-//
+// Task 2 - Code for producing a sawtooth wave with DAC
+// Also takes ADC output and reconstructs intial sine wave with DAC
 
 #include "init.h"
 
@@ -10,10 +10,11 @@ DAC_HandleTypeDef D1;
 DAC_ChannelConfTypeDef D1_OUT;
 ADC_HandleTypeDef hadc1;
 ADC_ChannelConfTypeDef sConfig;
-uint16_t rawValue;
+
+uint16_t rawValue; //ADC value
+uint16_t dac_value; //Output value
 
 void configureADC();
-void PB_config();
 void configureDAC();
 
 // Main Execution Loop
@@ -23,17 +24,18 @@ int main(void)
 	Sys_Init();
 	configureDAC();
 	configureADC();
-	PB_config();
 
+	//Start both ADC and DAC
 	HAL_ADC_Start(&hadc1);
 	HAL_DAC_Start(&D1, DAC_CHANNEL_1);
-	// Code goes here
+
 	while(1){
 
 		/*
 		//Part 1 - SawTooth
+		dac_value = 0;
 		HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, dac_value);
-		if (dac_value < 4095){
+		if (dac_value < 4096){
 			dac_value++;
 		}
 		else{
@@ -42,9 +44,9 @@ int main(void)
 		*/
 
 		//Part 2 - Signals
-		HAL_ADC_PollForConversion(&hadc1, 1000);
-		rawValue = HAL_ADC_GetValue(&hadc1);
-		HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, rawValue);
+		HAL_ADC_PollForConversion(&hadc1, 1000); //Start conversion
+		rawValue = HAL_ADC_GetValue(&hadc1); //Get the value
+		HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, rawValue); //Output the value
 	}
 }
 
@@ -88,9 +90,9 @@ void configureADC()
 
 	 /* Configure the global features of the ADC (Clock, Resolution, Data Alignment and number
 	 of conversion) */
-	 hadc1.Instance = ADC1;
+	 hadc1.Instance = ADC1; //Using ADC1
 	 hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
-	 hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+	 hadc1.Init.Resolution = ADC_RESOLUTION_12B; //12 Bit resolution
 	 hadc1.Init.ScanConvMode = DISABLE;
 	 hadc1.Init.ContinuousConvMode = ENABLE;
 	 hadc1.Init.DiscontinuousConvMode = DISABLE;
@@ -100,15 +102,6 @@ void configureADC()
 	 hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
 
 	 HAL_ADC_Init(&hadc1); // Initialize the ADC
-
-//		ADC_SAMPLETIME_3CYCLES
-//		ADC_SAMPLETIME_15CYCLES
-//		ADC_SAMPLETIME_28CYCLES
-//		ADC_SAMPLETIME_56CYCLES
-//		ADC_SAMPLETIME_84CYCLES
-//		ADC_SAMPLETIME_112CYCLES
-//		ADC_SAMPLETIME_144CYCLES
-//		ADC_SAMPLETIME_480CYCLES
 
 	 /* Configure for the selected ADC regular channel its corresponding rank in the sequence\r
 	 Analog-To-Digital Conversion 406
@@ -126,7 +119,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 // GPIO init
 	GPIO_InitTypeDef GPIO_InitStruct;
 	__HAL_RCC_GPIOC_CLK_ENABLE();
-	GPIO_InitStruct.Mode      = GPIO_MODE_ANALOG;
+	GPIO_InitStruct.Mode      = GPIO_MODE_ANALOG; //Analog mode for pin
 	GPIO_InitStruct.Pull      = GPIO_NOPULL;
 	GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
 	GPIO_InitStruct.Pin = GPIO_PIN_2;
@@ -134,13 +127,4 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 
 }
 
-void PB_config(){
-	GPIO_InitTypeDef GPIO_InitStruct;
-	__HAL_RCC_GPIOA_CLK_ENABLE();
-	GPIO_InitStruct.Mode      = GPIO_MODE_INPUT;
-	GPIO_InitStruct.Pull      = GPIO_NOPULL;
-	GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
-	GPIO_InitStruct.Pin = GPIO_PIN_0;
-	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); //A0 Blue PB
-}
 

@@ -1,12 +1,12 @@
 //--------------------------------
 // Lab 4 - Sample - Lab04_sample.c
 //--------------------------------
-//
+// Task 1 Code for producing a simple voltmeter using ADC
 //
 
 #include "init.h"
 ADC_HandleTypeDef hadc1;
-ADC_ChannelConfTypeDef sConfig;  //Configre handletypes as globals
+ADC_ChannelConfTypeDef sConfig;  //Configure handletypes as globals
 double avg = 0;
 double total;
 int count = 0;

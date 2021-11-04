@@ -1,26 +1,29 @@
 //--------------------------------
 // Lab 4 - Sample - Lab04_sample.c
 //--------------------------------
-//
+// Task 4 - Take output from ADC, filter it, send output to DAC output
 //
 
 #include "init.h"
 
+//TypeDef Structures for Needed Components
 DAC_HandleTypeDef D1;
 DAC_ChannelConfTypeDef D1_OUT;
 ADC_HandleTypeDef hadc1;
 ADC_ChannelConfTypeDef sConfig;
 
+//Variables to store readings/outputs
 volatile double current_reading;
 volatile double last_reading;
 volatile double second_last_reading;
 volatile double current_output;
 volatile double last_output;
 
+//Coefficients for the Filter Equation
 volatile double coeff1, coeff2, coeff3, coeff4;
 
 void configureADC();
-void PB_config();
+void TP_config();
 void configureDAC();
 
 // Main Execution Loop
@@ -30,7 +33,7 @@ int main(void)
 	Sys_Init();
 	configureDAC();
 	configureADC();
-	PB_config();
+	TP_config();
 
 	current_reading = 0;
 	last_reading = 0;
@@ -58,10 +61,7 @@ int main(void)
 		current_output = 0.3125*current_reading + 0.240385*last_reading
 				+ 0.3125*second_last_reading + 0.296875*last_output;
 
-		//printf("C-Style: %f\r\n",current_output);
 */
-
-
 
 
 		//Extended Assembly -
@@ -72,24 +72,30 @@ int main(void)
 		coeff3 = 0.3125;
 		coeff4 = 0.296875;
 
+		//First Coefficient and current_reading, multiply together and add to running result
 		asm volatile ("VMLA.F64 %P[result], %P[oper1], %P[oper2]"
 				: [result] "+&w" (current_output)
 				: [oper1] "w" (coeff1), [oper2] "w" (current_reading));
 
+		//Second Coefficient and last_reading, multiply together and add to running result
 		asm volatile ("VMLA.F64 %P[result], %P[oper1], %P[oper2]"
 				: [result] "+&w" (current_output)
 				: [oper1] "w" (coeff2), [oper2] "w" (last_reading));
 
+		//Third Coefficient and second_last_reading, multiply together and add to running result
 		asm volatile ("VMLA.F64 %P[result], %P[oper1], %P[oper2]"
 				: [result] "+&w" (current_output)
 				: [oper1] "w" (coeff3), [oper2] "w" (second_last_reading));
 
+		//Fourth Coefficient and last_output, multiply together and add to running result
 		asm volatile ("VMLA.F64 %P[result], %P[oper1], %P[oper2]"
 				: [result] "+&w" (current_output)
 				: [oper1] "w" (coeff4), [oper2] "w" (last_output));
 
+		//Send Filtered Value to DAC Output
 		HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, current_output);
 
+		//Toggle Pin to Measure Sampling Frequency
 		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_7);
 	}
 }
@@ -171,13 +177,13 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 
 }
 
-void PB_config(){ //Toggle Pin
+void TP_config(){ //Toggle Pin
 	GPIO_InitTypeDef GPIO_InitStruct;
 	__HAL_RCC_GPIOC_CLK_ENABLE();
 	GPIO_InitStruct.Mode      = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull      = GPIO_NOPULL;
 	GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
 	GPIO_InitStruct.Pin = GPIO_PIN_7;
-	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct); //A0 Blue PB
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct); //D0 - PC7
 }
 

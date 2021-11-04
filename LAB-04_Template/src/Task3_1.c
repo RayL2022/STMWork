@@ -1,8 +1,8 @@
-/*
- * Task3_1.c
- *
- */
-
+//--------------------------------
+// Lab 4 - Sample - Lab04_sample.c
+//--------------------------------
+// Task 3 - Assembly math tasks using integers
+//
 
 #include "init.h"
 
@@ -39,9 +39,9 @@ int main(void)
 
 void do_task1(void){
 	//Task 3 - Task Set 1 - #1
-	asm("LDR r2, =0x00000016"); //24 in reg 2
-	asm("LDR r3, =0x00000026"); // 26 in reg 3
-	asm("ADD r4, r2, r3"); //Add 24 + 26, store in reg 4
+	asm("LDR r2, =0x00000016"); //22 in reg 2
+	asm("LDR r3, =0x00000026"); // 38 in reg 3
+	asm("ADD r4, r2, r3"); //Add 22 + 38, store in reg 4
 
 	asm("STR r4,%0" : "=m" (result1)); //Store result of addition in result1
 	printf("Result 1: %d\r\n", result1); //Should be 60

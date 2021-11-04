@@ -1,7 +1,7 @@
 //--------------------------------
 // Lab 4 - Sample - Lab04_sample.c
 //--------------------------------
-//
+// Task 3 - Assembly math tasks using floats (single-precision)
 //
 
 #include "init.h"
