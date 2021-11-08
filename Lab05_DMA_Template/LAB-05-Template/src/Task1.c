@@ -3,8 +3,9 @@
 #include<stdlib.h>
 
 DMA_HandleTypeDef hdma1;
-uint8_t buf1[20];
-uint8_t buf2[20];
+uint8_t data[20];
+uint8_t dma_buffer[20];
+uint8_t c_buffer[20];
 
 void configureDMA();
 
@@ -36,7 +37,10 @@ int main(void)
 
 
 void configureDMA(){
-	hdma1.Instance = DMA1_Stream0;	//This needs to change
+
+	__HAL_RCC_DMA2_CLK_ENABLE();
+
+	hdma1.Instance = DMA_CHANNEL_0;	//This needs to change
 	hdma1.Init.Direction = DMA_MEMORY_TO_MEMORY;
 	hdma1.Init.PeriphInc = DMA_PINC_DISABLE;
 	hdma1.Init.MemInc = DMA_MINC_ENABLE;
@@ -47,7 +51,7 @@ void configureDMA(){
 	//hdma1.XferCpltCallback = &DMATransferComplete;
 	HAL_DMA_Init(&hdma1);
 
-	HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
+	HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
 }
 
 
