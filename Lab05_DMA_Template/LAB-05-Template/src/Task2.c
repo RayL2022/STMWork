@@ -95,6 +95,7 @@ int main(void)
 	while(1){
 		//Check for input from keyboard
 		//Array.Clear(spi_data, 0, spi_data.Length);
+
 		HAL_UART_Receive (&USB_UART, (uint8_t*) &input, 1, 10);
 		if (input){ //Key was pressed
 			if (check == 1){
@@ -169,7 +170,7 @@ void configureDMA(){
 	hdma3.Instance = DMA2_Stream1;
 	hdma3.Init.Channel = DMA_CHANNEL_0;
 	hdma3.Init.Direction = DMA_MEMORY_TO_PERIPH;
-	hdma3.Init.PeriphInc = DMA_PINC_DISABLE;
+	hdma3.Init.PeriphInc = DMA_PINC_ENABLE;
 	hdma3.Init.MemInc = DMA_MINC_ENABLE;
 	hdma3.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
 	hdma3.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
