@@ -7,18 +7,25 @@
 
 
 #include "init.h"
+#include<stdint.h>
+#include<stdlib.h>
 
 // If needed:
 //#include <stdio.h>
 //#include <stdlib.h>
 
 SPI_HandleTypeDef S2; //Handle type structure for SPI2
-//DMA_HandleTypeDef hdma2;
+DMA_HandleTypeDef hdma2;
+DMA_HandleTypeDef hdma3;
 
 char input; //Input data from keyboard
-char spi_data; //Storage for SPI data
+int i = 0;
+int check;
+char display = 0;
+uint8_t spi_data[100]; //Storage for SPI data
+uint8_t data[100];
 
-//void configureDMA();
+void configureDMA();
 
 //Necessary Configurations for SPI
 void configureSPI()
@@ -81,56 +88,110 @@ int main(void)
 	HAL_Init();
 
 	configureSPI();
-	//configureDMA();
+	configureDMA();
 
 	input = 0; //Initialize to 0
-
+	check = 1;
 	while(1){
 		//Check for input from keyboard
+		//Array.Clear(spi_data, 0, spi_data.Length);
 		HAL_UART_Receive (&USB_UART, (uint8_t*) &input, 1, 10);
 		if (input){ //Key was pressed
-			printf("\033[0;0H"); fflush(stdout); //Top of terminal
+			if (check == 1){
+				printf("\033[0;0H"); fflush(stdout); //Top of terminal
+				printf("\033[2K"); fflush(stdout);
+				check = 0;
+			}
 			//Display the data that was input to terminal
+			data[i] = input;
+			i = i + 1;
 			HAL_UART_Transmit (&USB_UART, (uint8_t*) &input, 1, 10);
-
-			//Transmit data from input, transmit (store) in spi_data
-			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
-			HAL_Delay(1);//Delay between pin state change
-			//Transmit input data and receive data in spi_data
-			HAL_SPI_TransmitReceive(&S2, (uint8_t*) &input, (uint8_t*) &spi_data, 1, 1000);
-
-			//HAL_SPI_TransmitReceive_DMA(&S2, (uint8_t*) &input, (uint8_t*) &spi_data, 1);
-			HAL_Delay(1);//Delay between pin state change
-			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET);
-
+			if (input == '\r'){
+				//Transmit data from input, transmit (store) in spi_data
+				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
+				HAL_Delay(1);//Delay between pin state change
+				//Transmit input data and receive data in spi_data
+				//HAL_SPI_TransmitReceive(&S2, (uint8_t*) &data, (uint8_t*) &spi_data, 100, 1000);
+//				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET); //CS Low
+//				HAL_Delay(1); //Needed Delay
+//				HAL_SPI_Transmit(&S2, &reg, 1,  1000); //Communicate with specified register
+//				HAL_Delay(1);
+				HAL_SPI_Transmit_DMA(&S2, (uint8_t*)&data, 100); //Write data to register
+				HAL_Delay(1);
+				HAL_SPI_Receive_DMA(&S2, (uint8_t*)&spi_data, 100);
+				//HAL_Delay(1);
+//				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET); //CS High
+//				HAL_Delay(1);
+				//HAL_SPI_TransmitReceive_DMA(&S2, (uint8_t*) &data, (uint8_t*) &spi_data, 100);
+				HAL_Delay(1);//Delay between pin state change
+				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_SET);
+				display = 1;
+			}
 			input = 0; //Clear input
 
 		}
 
-		if (spi_data){ //We have valid spi_data
+		if (display){ //We have valid spi_data
 			printf("\033[12;0H"); fflush(stdout); //bottom half of terminal
+			printf("\033[2K"); fflush(stdout);
 			//Display data from SPI to the terminal
-			HAL_UART_Transmit (&USB_UART, (uint8_t*) &spi_data, 1, 10);
-			spi_data = 0; //Clear
+			HAL_UART_Transmit (&USB_UART, (uint8_t*) &spi_data, 100, 10);
+			display = 0;
+			memset(data, '\0', sizeof(spi_data));
+			check = 1;
+			//spi_data = 0; //Clear
 		}
 	}
 
 }
 
-//void configureDMA(){
-//
-//	__HAL_RCC_DMA2_CLK_ENABLE();
-//
-//	hdma2.Instance = DMA_CHANNEL_0;	//This needs to change
-//	hdma2.Init.Direction = DMA_MEMORY_TO_MEMORY;
-//	hdma2.Init.PeriphInc = DMA_PINC_DISABLE;
-//	hdma2.Init.MemInc = DMA_MINC_ENABLE;
-//	hdma2.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-//	hdma2.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-//	hdma2.Init.Mode = DMA_NORMAL;
-//	hdma2.Init.Priority = DMA_PRIORITY_LOW;
-//	//hdma1.XferCpltCallback = &DMATransferComplete;
-//	HAL_DMA_Init(&hdma2);
-//
-//	HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
-//}
+void configureDMA(){
+
+	__HAL_RCC_DMA2_CLK_ENABLE();
+
+	hdma2.Instance = DMA2_Stream0;
+	hdma2.Init.Channel = DMA_CHANNEL_0;
+	hdma2.Init.Direction = DMA_PERIPH_TO_MEMORY;
+	hdma2.Init.PeriphInc = DMA_PINC_DISABLE;
+	hdma2.Init.MemInc = DMA_MINC_ENABLE;
+	hdma2.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+	hdma2.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+	hdma2.Init.Mode = DMA_NORMAL;
+	hdma2.Init.Priority = DMA_PRIORITY_HIGH;
+	hdma2.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+	//hdma1.XferCpltCallback = &DMATransferComplete;
+	HAL_DMA_Init(&hdma2);
+	//__HAL_LINKDMA(&S2,hdmatx,hdma2);
+	__HAL_LINKDMA(&S2,hdmarx,hdma2);
+
+	HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+
+	hdma3.Instance = DMA2_Stream1;
+	hdma3.Init.Channel = DMA_CHANNEL_0;
+	hdma3.Init.Direction = DMA_MEMORY_TO_PERIPH;
+	hdma3.Init.PeriphInc = DMA_PINC_DISABLE;
+	hdma3.Init.MemInc = DMA_MINC_ENABLE;
+	hdma3.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+	hdma3.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+	hdma3.Init.Mode = DMA_NORMAL;
+	hdma3.Init.Priority = DMA_PRIORITY_HIGH;
+	hdma3.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+	//hdma1.XferCpltCallback = &DMATransferComplete;
+	HAL_DMA_Init(&hdma3);
+	__HAL_LINKDMA(&S2,hdmatx,hdma3);
+	//__HAL_LINKDMA(&S2,hdmarx,hdma3);
+	HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
+}
+
+void DMA2_Stream0_IRQHandler(void){
+	HAL_DMA_IRQHandler(&hdma2);
+}
+
+void DMA2_Stream1_IRQHandler(void){
+	HAL_DMA_IRQHandler(&hdma3);
+}
+
+//void HAL_SPI_RxCpltCallback (SPI_HandleTypeDef * hspi){}
+void HAL_SPI_TxRxCpltCallback (SPI_HandleTypeDef * hspi){
+
+}
