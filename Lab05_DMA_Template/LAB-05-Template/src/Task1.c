@@ -6,9 +6,9 @@ DMA_HandleTypeDef hdma1;
 uint32_t cycles;
 
 // For 10 indices buffers
-uint8_t data_10_8[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-uint16_t data_10_16[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-uint32_t data_10_32[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+uint8_t data_10_8[10];
+uint16_t data_10_16[10];
+uint32_t data_10_32[10];
 
 uint8_t dma_buffer_10_8[10];
 uint16_t dma_buffer_10_16[10];
@@ -46,6 +46,7 @@ uint8_t c_buffer_1000_8[1000];
 uint16_t c_buffer_1000_16[1000];
 uint32_t c_buffer_1000_32[1000];
 
+void add_10_lists();
 void add_100_lists();
 void add_1000_lists();
 void c_evaluate_time_8(uint8_t* data, uint32_t size);
@@ -62,6 +63,7 @@ int main(void)
 	Sys_Init();
 	configureDMA();
 
+	add_10_lists();
 	add_100_lists();
 	add_1000_lists();
 
@@ -110,19 +112,20 @@ int main(void)
 
 
 }
+
+void add_10_lists(){
+	for (int i = 0; i < 10; i++){
+		data_10_8[i] = i;
+		data_10_16[i] = i;
+		data_10_32[i] = i;
+	}
+}
+
 void add_100_lists(){
 	for (int i = 0; i < 100; i++){
 		data_100_8[i] = i;
 		data_100_16[i] = i;
 		data_100_32[i] = i;
-
-		dma_buffer_100_8[i] = i;
-		dma_buffer_100_16[i] = i;
-		dma_buffer_100_32[i] = i;
-
-		c_buffer_100_8[i] = i;
-		c_buffer_100_16[i] = i;
-		c_buffer_100_32[i] = i;
 	}
 }
 
@@ -135,14 +138,6 @@ void add_1000_lists(){
 		data_1000_8[i] = j;
 		data_1000_16[i] = j;
 		data_1000_32[i] = j;
-
-		dma_buffer_1000_8[i] = j;
-		dma_buffer_1000_16[i] = j;
-		dma_buffer_1000_32[i] = j;
-
-		c_buffer_1000_8[i] = j;
-		c_buffer_1000_16[i] = j;
-		c_buffer_1000_32[i] = j;
 	}
 }
 
@@ -236,6 +231,9 @@ void c_evaluate_time_32(uint32_t* data, uint32_t size){
 }
 
 void dma_evaluate_time_8(uint8_t* data, uint32_t size){
+	hdma1.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+	hdma1.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+	HAL_DMA_Init(&hdma1);
 	if (size == 10){
 		DWT->CYCCNT = 0; // Clear the cycle counter
 		HAL_DMA_Start(&hdma1, (uint32_t)data, (uint32_t)&dma_buffer_10_8, 10);
@@ -263,6 +261,9 @@ void dma_evaluate_time_8(uint8_t* data, uint32_t size){
 }
 
 void dma_evaluate_time_16(uint16_t* data, uint32_t size){
+	hdma1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+	hdma1.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+	HAL_DMA_Init(&hdma1);
 	if (size == 10){
 		DWT->CYCCNT = 0; // Clear the cycle counter
 		HAL_DMA_Start(&hdma1, (uint32_t)data, (uint32_t)&dma_buffer_10_16, 10);
@@ -290,6 +291,9 @@ void dma_evaluate_time_16(uint16_t* data, uint32_t size){
 }
 
 void dma_evaluate_time_32(uint32_t* data, uint32_t size){
+	hdma1.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+	hdma1.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
+	HAL_DMA_Init(&hdma1);
 	if (size == 10){
 		DWT->CYCCNT = 0; // Clear the cycle counter
 		HAL_DMA_Start(&hdma1, (uint32_t)data, (uint32_t)&dma_buffer_10_32, 10);
