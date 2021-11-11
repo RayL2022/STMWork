@@ -92,11 +92,12 @@ int main(void)
 
 	input = 0; //Initialize to 0
 	check = 1;
+
 	while(1){
 		//Check for input from keyboard
 		//Array.Clear(spi_data, 0, spi_data.Length);
 
-		HAL_UART_Receive (&USB_UART, (uint8_t*) &input, 1, 10);
+		HAL_UART_Receive (&USB_UART, (uint8_t*) &input, 1, 1000);
 		if (input){ //Key was pressed
 			if (check == 1){
 				printf("\033[0;0H"); fflush(stdout); //Top of terminal
@@ -148,26 +149,28 @@ int main(void)
 
 void configureDMA(){
 
-	__HAL_RCC_DMA2_CLK_ENABLE();
+	__HAL_RCC_DMA1_CLK_ENABLE();
 
-	hdma2.Instance = DMA2_Stream0;
+	hdma2.Instance = DMA1_Stream3;
 	hdma2.Init.Channel = DMA_CHANNEL_0;
 	hdma2.Init.Direction = DMA_PERIPH_TO_MEMORY;
-	hdma2.Init.PeriphInc = DMA_PINC_DISABLE;
+	hdma2.Init.PeriphInc = DMA_PINC_ENABLE;
 	hdma2.Init.MemInc = DMA_MINC_ENABLE;
 	hdma2.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
 	hdma2.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
 	hdma2.Init.Mode = DMA_NORMAL;
 	hdma2.Init.Priority = DMA_PRIORITY_HIGH;
 	hdma2.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+	hdma2.Init.MemBurst = DMA_MBURST_SINGLE;
+	hdma2.Init.PeriphBurst = DMA_PBURST_SINGLE;
 	//hdma1.XferCpltCallback = &DMATransferComplete;
 	HAL_DMA_Init(&hdma2);
 	//__HAL_LINKDMA(&S2,hdmatx,hdma2);
 	__HAL_LINKDMA(&S2,hdmarx,hdma2);
 
-	HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+	HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
 
-	hdma3.Instance = DMA2_Stream1;
+	hdma3.Instance = DMA1_Stream4;
 	hdma3.Init.Channel = DMA_CHANNEL_0;
 	hdma3.Init.Direction = DMA_MEMORY_TO_PERIPH;
 	hdma3.Init.PeriphInc = DMA_PINC_ENABLE;
@@ -177,18 +180,20 @@ void configureDMA(){
 	hdma3.Init.Mode = DMA_NORMAL;
 	hdma3.Init.Priority = DMA_PRIORITY_HIGH;
 	hdma3.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+	hdma3.Init.MemBurst = DMA_MBURST_SINGLE;
+	hdma3.Init.PeriphBurst = DMA_PBURST_SINGLE;
 	//hdma1.XferCpltCallback = &DMATransferComplete;
 	HAL_DMA_Init(&hdma3);
 	__HAL_LINKDMA(&S2,hdmatx,hdma3);
 	//__HAL_LINKDMA(&S2,hdmarx,hdma3);
-	HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
+	HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn);
 }
 
-void DMA2_Stream0_IRQHandler(void){
+void DMA1_Stream3_IRQHandler(void){
 	HAL_DMA_IRQHandler(&hdma2);
 }
 
-void DMA2_Stream1_IRQHandler(void){
+void DMA1_Stream4_IRQHandler(void){
 	HAL_DMA_IRQHandler(&hdma3);
 }
 
