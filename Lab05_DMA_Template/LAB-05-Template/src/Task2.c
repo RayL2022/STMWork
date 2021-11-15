@@ -187,7 +187,6 @@ void DMA1_Stream4_IRQHandler(void){
 	HAL_DMA_IRQHandler(&hdma3);
 }
 
-//void HAL_SPI_RxCpltCallback (SPI_HandleTypeDef * hspi){}
 void HAL_SPI_TxRxCpltCallback (SPI_HandleTypeDef * hspi){
 
 }
