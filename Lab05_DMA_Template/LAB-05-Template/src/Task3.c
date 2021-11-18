@@ -169,6 +169,35 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 	current_output = 0.3125*(double)current_reading[0] + 0.240385*last_reading
 			+ 0.3125*second_last_reading + 0.296875*last_output;
 
+/*
+	//Extended Assembly -
+	current_output = 0;
+	coeff1 = 0.3125;
+	coeff2 = 0.240385;
+	coeff3 = 0.3125;
+	coeff4 = 0.296875;
+
+	//First Coefficient and current_reading, multiply together and add to running result
+	asm volatile ("VMLA.F64 %P[result], %P[oper1], %P[oper2]"
+			: [result] "+&w" (current_output)
+			: [oper1] "w" (coeff1), [oper2] "w" (current_reading));
+
+	//Second Coefficient and last_reading, multiply together and add to running result
+	asm volatile ("VMLA.F64 %P[result], %P[oper1], %P[oper2]"
+			: [result] "+&w" (current_output)
+			: [oper1] "w" (coeff2), [oper2] "w" (last_reading));
+
+	//Third Coefficient and second_last_reading, multiply together and add to running result
+	asm volatile ("VMLA.F64 %P[result], %P[oper1], %P[oper2]"
+			: [result] "+&w" (current_output)
+			: [oper1] "w" (coeff3), [oper2] "w" (second_last_reading));
+
+	//Fourth Coefficient and last_output, multiply together and add to running result
+	asm volatile ("VMLA.F64 %P[result], %P[oper1], %P[oper2]"
+			: [result] "+&w" (current_output)
+			: [oper1] "w" (coeff4), [oper2] "w" (last_output));
+*/
+
 	//Send Filtered Value to DAC Output
 	HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, current_output);
 
