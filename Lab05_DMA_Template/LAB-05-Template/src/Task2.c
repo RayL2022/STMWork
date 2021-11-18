@@ -2,9 +2,11 @@
  * Task2.c
  *
  *  Created on: Nov 1, 2021
- *      Author: Shayne
+ *      Author: Shayne & Ray
  */
-
+// Task 2 - Reconfigure Lab 03 Task 2 to send and receive data using DMA
+// Allows storage of characters until enter is pressed and then all characters
+// are transmitted at once
 
 #include "init.h"
 #include<stdint.h>
