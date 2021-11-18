@@ -50,7 +50,6 @@ int main(void)
 
 	HAL_ADC_Start_DMA(&hadc1, current_reading, 1);
 	HAL_DAC_Start(&D1, DAC_CHANNEL_1);
-	// Code goes here
 	while(1){
 	}
 }
@@ -89,7 +88,7 @@ void HAL_DAC_MspInit(DAC_HandleTypeDef *hdac)
 
 void configureADC()
 {
-	// Enable the ADC Clock.
+	// Enable the ADC Clock.A
 	__HAL_RCC_ADC1_CLK_ENABLE();
 
 
@@ -137,23 +136,21 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 
 void configureDMA(){
 
-	__HAL_RCC_DMA2_CLK_ENABLE();
+	__HAL_RCC_DMA2_CLK_ENABLE();	//Enable DMA2 clock
 
 	hdma2.Instance = DMA2_Stream0;
-	hdma2.Init.Channel = DMA_CHANNEL_0;
-	hdma2.Init.Direction = DMA_PERIPH_TO_MEMORY;
-	hdma2.Init.PeriphInc = DMA_PINC_DISABLE;
-	hdma2.Init.MemInc = DMA_MINC_ENABLE;
-	hdma2.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
-	hdma2.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
-	hdma2.Init.Mode = DMA_CIRCULAR;
-	hdma2.Init.Priority = DMA_PRIORITY_HIGH;
-	hdma2.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-	hdma2.Init.MemBurst = DMA_MBURST_SINGLE;
-	hdma2.Init.PeriphBurst = DMA_PBURST_SINGLE;
-	//hdma1.XferCpltCallback = &DMATransferComplete;
-	HAL_DMA_Init(&hdma2);
-	//__HAL_LINKDMA(&S2,hdmarx,hdma2);
+	hdma2.Init.Channel = DMA_CHANNEL_0;	//Use Channel 0, Stream 0
+	hdma2.Init.Direction = DMA_PERIPH_TO_MEMORY;	//Transfer data from peripheral to memory
+	hdma2.Init.PeriphInc = DMA_PINC_DISABLE;	//Don't increment peripheral address
+	hdma2.Init.MemInc = DMA_MINC_ENABLE;	//Increment memory address
+	hdma2.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;	//Peripheral data width one word
+	hdma2.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;	//Memory data width one word
+	hdma2.Init.Mode = DMA_CIRCULAR;	//Use circular transfer type
+	hdma2.Init.Priority = DMA_PRIORITY_HIGH;	//Sets the stream's priority to high for the software
+	hdma2.Init.FIFOMode = DMA_FIFOMODE_DISABLE;	//Disable FIFO buffers
+	hdma2.Init.MemBurst = DMA_MBURST_SINGLE;	//Single piece of data transfered in a transaction
+	hdma2.Init.PeriphBurst = DMA_PBURST_SINGLE;	//Single piece of data transfered in a transaction
+	HAL_DMA_Init(&hdma2);	//Initialize DMA configurations
 
 	HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
 }

@@ -10,10 +10,6 @@
 #include<stdint.h>
 #include<stdlib.h>
 
-// If needed:
-//#include <stdio.h>
-//#include <stdlib.h>
-
 SPI_HandleTypeDef S2; //Handle type structure for SPI2
 DMA_HandleTypeDef hdma2;
 DMA_HandleTypeDef hdma3;
@@ -23,7 +19,7 @@ int i = 0;
 int check;
 char display = 0;
 uint8_t spi_data[100]; //Storage for SPI data
-uint8_t data[100];
+uint8_t data[100];	//Storage for user inputs
 
 void configureDMA();
 
@@ -47,7 +43,6 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 {
 	// SPI GPIO initialization structure here
 	GPIO_InitTypeDef  GPIO_InitStruct;
-
 	if (hspi->Instance == SPI2) //Associated with SPI2
 	{
 		// Enable GPIO Clocks
@@ -55,7 +50,6 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 		__GPIOJ_CLK_ENABLE();
 		__GPIOB_CLK_ENABLE();
 		__GPIOC_CLK_ENABLE();
-
 		GPIO_InitStruct.Mode      = GPIO_MODE_OUTPUT_PP;
 		GPIO_InitStruct.Pull      = GPIO_NOPULL;
 		GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
@@ -94,22 +88,18 @@ int main(void)
 	check = 1;
 
 	while(1){
-		//Check for input from keyboard
-		//Array.Clear(spi_data, 0, spi_data.Length);
-
-		HAL_UART_Receive (&USB_UART, (uint8_t*) &input, 1, HAL_MAX_DELAY);
+		HAL_UART_Receive (&USB_UART, (uint8_t*) &input, 1, HAL_MAX_DELAY);	//Try to receive input
 		if (input){ //Key was pressed
 			if (check == 1){
 				printf("\033[0;0H"); fflush(stdout); //Top of terminal
 				printf("\033[2K"); fflush(stdout);
 				check = 0;
 			}
-			//Display the data that was input to terminal
-			data[i] = input;
+			data[i] = input;	//append inputs to array
 			i = i + 1;
-			HAL_UART_Transmit (&USB_UART, (uint8_t*) &input, 1, 10);
+			HAL_UART_Transmit (&USB_UART, (uint8_t*) &input, 1, 10); //Display the data that was input to terminal
 			if (input == '\r'){
-				//Transmit data from input, transmit (store) in spi_data
+				//Transmit data from "data", transmit (store) in spi_data
 				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
 				HAL_Delay(1);//Delay between pin state change
 				HAL_SPI_TransmitReceive_DMA(&S2, (uint8_t*) &data, (uint8_t*) &spi_data, 100);
@@ -128,10 +118,9 @@ int main(void)
 			HAL_UART_Transmit (&USB_UART, (uint8_t*) &spi_data, 100, 10);
 			display = 0;
 			memset(data, '\0', sizeof(spi_data));
-			memset(spi_data, '\0', sizeof(spi_data));
-			check = 1;
-			i = 0;
-			//spi_data = 0; //Clear
+			memset(spi_data, '\0', sizeof(spi_data));	//clear data arrays
+			check = 1;	//set to return printing to top of screen
+			i = 0; 		//clear variable
 		}
 	}
 
@@ -139,44 +128,39 @@ int main(void)
 
 void configureDMA(){
 
-	__HAL_RCC_DMA1_CLK_ENABLE();
+	__HAL_RCC_DMA1_CLK_ENABLE();	//Enable DMA1 clock
 
 	hdma2.Instance = DMA1_Stream3;
-	hdma2.Init.Channel = DMA_CHANNEL_0;
-	hdma2.Init.Direction = DMA_PERIPH_TO_MEMORY;
-	hdma2.Init.PeriphInc = DMA_PINC_DISABLE;
-	hdma2.Init.MemInc = DMA_MINC_ENABLE;
-	hdma2.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-	hdma2.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-	hdma2.Init.Mode = DMA_NORMAL;
-	hdma2.Init.Priority = DMA_PRIORITY_HIGH;
-	hdma2.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-	hdma2.Init.MemBurst = DMA_MBURST_SINGLE;
-	hdma2.Init.PeriphBurst = DMA_PBURST_SINGLE;
-	//hdma1.XferCpltCallback = &DMATransferComplete;
-	HAL_DMA_Init(&hdma2);
-	//__HAL_LINKDMA(&S2,hdmatx,hdma2);
-	__HAL_LINKDMA(&S2,hdmarx,hdma2);
-
-	HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
+	hdma2.Init.Channel = DMA_CHANNEL_0;	//Use Channel 0, Stream 3
+	hdma2.Init.Direction = DMA_PERIPH_TO_MEMORY;	//Transfer data from peripheral to memory
+	hdma2.Init.PeriphInc = DMA_PINC_DISABLE;	//Don't increment peripheral address
+	hdma2.Init.MemInc = DMA_MINC_ENABLE;	//Increment memory address
+	hdma2.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;	//Peripheral data width one byte
+	hdma2.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;	//Memory data width one byte
+	hdma2.Init.Mode = DMA_NORMAL;	//Use normal transfer type
+	hdma2.Init.Priority = DMA_PRIORITY_HIGH;	//Sets the stream's priority to high for the software
+	hdma2.Init.FIFOMode = DMA_FIFOMODE_DISABLE;	//Disable FIFO buffers
+	hdma2.Init.MemBurst = DMA_MBURST_SINGLE;	//Single piece of data transfered in a transaction
+	hdma2.Init.PeriphBurst = DMA_PBURST_SINGLE;	//Single piece of data transfered in a transaction
+	HAL_DMA_Init(&hdma2);	//Initialize DMA configurations
+	__HAL_LINKDMA(&S2,hdmarx,hdma2);	//Set this DMA stream in receive mode
+	HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);	//Enable interrupt for stream 3
 
 	hdma3.Instance = DMA1_Stream4;
-	hdma3.Init.Channel = DMA_CHANNEL_0;
-	hdma3.Init.Direction = DMA_MEMORY_TO_PERIPH;
-	hdma3.Init.PeriphInc = DMA_PINC_DISABLE;
-	hdma3.Init.MemInc = DMA_MINC_ENABLE;
-	hdma3.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-	hdma3.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-	hdma3.Init.Mode = DMA_NORMAL;
-	hdma3.Init.Priority = DMA_PRIORITY_HIGH;
-	hdma3.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-	hdma3.Init.MemBurst = DMA_MBURST_SINGLE;
-	hdma3.Init.PeriphBurst = DMA_PBURST_SINGLE;
-	//hdma1.XferCpltCallback = &DMATransferComplete;
-	HAL_DMA_Init(&hdma3);
-	__HAL_LINKDMA(&S2,hdmatx,hdma3);
-	//__HAL_LINKDMA(&S2,hdmarx,hdma3);
-	HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn);
+	hdma3.Init.Channel = DMA_CHANNEL_0;	//Use Channel 0, Stream 4
+	hdma3.Init.Direction = DMA_MEMORY_TO_PERIPH;	//Transfer data from memory to peripheral
+	hdma3.Init.PeriphInc = DMA_PINC_DISABLE;	//Don't increment peripheral address
+	hdma3.Init.MemInc = DMA_MINC_ENABLE;	//Increment memory address
+	hdma3.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;	//Peripheral data width one byte
+	hdma3.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;	//Memory data width one byte
+	hdma3.Init.Mode = DMA_NORMAL;	//Use normal transfer type
+	hdma3.Init.Priority = DMA_PRIORITY_HIGH;	//Sets the stream's priority to high for the software
+	hdma3.Init.FIFOMode = DMA_FIFOMODE_DISABLE;	//Disable FIFO buffers
+	hdma3.Init.MemBurst = DMA_MBURST_SINGLE;	//Single piece of data transfered in a transaction
+	hdma3.Init.PeriphBurst = DMA_PBURST_SINGLE;	//Single piece of data transfered in a transaction
+	HAL_DMA_Init(&hdma3);	//Initialize DMA configurations
+	__HAL_LINKDMA(&S2,hdmatx,hdma3);	//Set this DMA stream in transmit mode
+	HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn); //Enable interrupt for stream 4
 }
 
 void DMA1_Stream3_IRQHandler(void){
