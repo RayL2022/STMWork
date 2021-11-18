@@ -78,7 +78,7 @@ void Init_Timer(){
 	//Enable interrupts on NVIC
 	HAL_NVIC_EnableIRQ(TIM2_IRQn);
 
-	//Configure for 0.5MHz Frequency
+	//Configure for 45kHz Frequency
 	htim2.Init.Prescaler = 1;
 	htim2.Init.Period = 1200;
 	htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
