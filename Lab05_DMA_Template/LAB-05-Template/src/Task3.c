@@ -164,11 +164,12 @@ void DMA2_Stream0_IRQHandler(void){
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
-/*	//C - Style Floating Point Equation
+	//C - Style Floating Point Equation
 	current_output = 0.3125*(double)current_reading[0] + 0.240385*last_reading
-			+ 0.3125*second_last_reading + 0.296875*last_output;*/
+			+ 0.3125*second_last_reading + 0.296875*last_output;
 
-
+	//Assembly Implementation
+/*
 	current_output = 0;
 	coeff1 = 0.3125;
 	coeff2 = 0.240385;
@@ -193,9 +194,11 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 	//Fourth Coefficient and last_output, multiply together and add to running result
 	asm volatile ("VMLA.F64 %P[result], %P[oper1], %P[oper2]"
 			: [result] "+&w" (current_output)
-			: [oper1] "w" (coeff4), [oper2] "w" (last_output));
+			: [oper1] "w" (coeff4), [oper2] "w" (last_output));*/
 
-
+/*	printf("Read: %lu, Out: %f, Last: %f, 2_Last: %f, Last_Out: %f, i: %lu\r\n"
+				, current_reading[0], current_output, last_reading,
+				second_last_reading, last_output, i);*/
 
 	//Send Filtered Value to DAC Output
 	HAL_DAC_SetValue(&D1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, current_output);
