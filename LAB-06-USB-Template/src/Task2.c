@@ -15,13 +15,16 @@ USBH_HandleTypeDef husbh;
 
 HID_MOUSE_Info_TypeDef *mouse;
 int connected = 0;
-FATFS *fs;     /* Ponter to the filesystem object */
-DIR dp;
-char* path;
+
+FATFS *fs;
+FRESULT res;
+DIR dir;
 UINT i;
 static FILINFO fno;
-FRESULT res;
+char buff[256];
+
 void USBH_UserProcess(USBH_HandleTypeDef *, uint8_t);
+FRESULT scan_files (char* path);
 
 int main(void){
 	 // System Initializations
@@ -34,7 +37,6 @@ int main(void){
 	fflush(stdout);
 	printf("start\n\r");
 
-    fs = malloc(sizeof (FATFS));           /* Get work area for the volume */
     while(1){
 		//printf("while\n\r");
 		USBH_Process(&husbh);
@@ -43,24 +45,11 @@ int main(void){
 
 void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id) {
 	if (phost->pActiveClass == USBH_MSC_CLASS){
-	    f_mount(fs, "", 0);                    /* Mount the default drive */
-	    path[0] = '/';
-	    res = f_opendir(&dp, path);
+
+	    res = f_mount(fs, "", 0);                    /* Mount the default drive */
 	    if (res == FR_OK) {
-			for (;;) {
-				res = f_readdir(&dp, &fno);
-				if (res != FR_OK || fno.fname[0] == 0) break;
-	            if (fno.fattrib & AM_DIR) {                    /* It is a directory */
-	                i = strlen(path);
-	                sprintf(&path[i], "/%s", fno.fname);
-	                //res = scan_files(path);                    /* Enter the directory */
-	                if (res != FR_OK) break;
-	                path[i] = 0;
-	            } else {                                       /* It is a file. */
-	                printf("%s/%s\n", path, fno.fname);
-	            }
-			}
-			f_closedir(&dp);
+	        strcpy(buff, "/");
+	        res = scan_files(buff);
 	    }
 	}
 }
@@ -75,6 +64,27 @@ void USBH_HID_EventCallback(USBH_HandleTypeDef *phost){
 					mouse->buttons[0], mouse->buttons[1], mouse->buttons[2]);
 		}
 	}
+}
+
+FRESULT scan_files (char* path        /* Start node to be scanned (***also used as work area***) */){
+    res = f_opendir(&dir, path);                       /* Open the directory */
+    if (res == FR_OK) {
+        for (;;) {
+            res = f_readdir(&dir, &fno);                   /* Read a directory item */
+            if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
+            if (fno.fattrib & AM_DIR) {                    /* It is a directory */
+                i = strlen(path);
+                sprintf(&path[i], "/%s", fno.fname);
+                res = scan_files(path);                    /* Enter the directory */
+                if (res != FR_OK) break;
+                path[i] = 0;
+            } else {                                       /* It is a file. */
+                printf("%s/%s\n", path, fno.fname);
+            }
+        }
+        f_closedir(&dir);
+    }
+    return res;
 }
 
 
