@@ -100,7 +100,7 @@ int main(void)
 			data[i] = input;	//append inputs to array
 			i = i + 1;
 			HAL_UART_Transmit (&USB_UART, (uint8_t*) &input, 1, 10); //Display the data that was input to terminal
-			if (input == '\r'){
+			if (input == '\r'){ //Enter was pressed
 				//Transmit data from "data", transmit (store) in spi_data
 				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
 				HAL_Delay(1);//Delay between pin state change
