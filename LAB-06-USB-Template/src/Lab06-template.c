@@ -24,7 +24,7 @@ int main(void){
 	USBH_Start(&husbh); // Start USBH Driver
 	fflush(stdout);
 	while(1){
-		USBH_Process(&husbh);
+		USBH_Process(&husbh);	//Poll for USB updates
 	}
 }
 
