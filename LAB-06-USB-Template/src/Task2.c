@@ -35,19 +35,18 @@ int main(void){
 	FATFS_LinkDriver(&USBH_Driver, "0:/"); // #2
 	USBH_Start(&husbh); // Start USBH Driver
 	fflush(stdout);
-	printf("start\n\r");
+	fs = malloc(sizeof (FATFS));           /* Get work area for the volume */
 
     while(1){
-		//printf("while\n\r");
 		USBH_Process(&husbh);
 	}
 }
 
 void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id) {
 	if (phost->pActiveClass == USBH_MSC_CLASS){
-
-	    res = f_mount(fs, "", 0);                    /* Mount the default drive */
+	    res = f_mount(fs, "0:/", 1);                    /* Mount the default drive */
 	    if (res == FR_OK) {
+	    	//printf("Entered\r\n");
 	        strcpy(buff, "/");
 	        res = scan_files(buff);
 	    }
@@ -66,9 +65,10 @@ void USBH_HID_EventCallback(USBH_HandleTypeDef *phost){
 	}
 }
 
-FRESULT scan_files (char* path        /* Start node to be scanned (***also used as work area***) */){
+FRESULT scan_files (char* path /* Start node to be scanned (***also used as work area***) */){
     res = f_opendir(&dir, path);                       /* Open the directory */
     if (res == FR_OK) {
+    	printf("Entered\r\n");
         for (;;) {
             res = f_readdir(&dir, &fno);                   /* Read a directory item */
             if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
@@ -87,4 +87,5 @@ FRESULT scan_files (char* path        /* Start node to be scanned (***also used 
     return res;
 }
 
+//FIX LINE 74
 
