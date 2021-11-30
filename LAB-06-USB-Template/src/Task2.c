@@ -77,12 +77,15 @@ FRESULT scan_files (char* path /* Start node to be scanned (***also used as work
                 i = strlen(path);
                 sprintf(&path[i], "/%s", fno.fname);
                 printf("Directory: %s/%s\r\n", path, fno.fname);
-                //res = scan_files(path);                    /* Enter the directory */
+
+/*              //res = scan_files(path);                    //Enter the directory
                 if (res != FR_OK) break;
-                path[i] = 0;
-            } else {                                       /* It is a file. */
+                path[i] = 0;*/
+            }
+            else {                                        //It is a file.
                 printf("File: %s/%s\r\n", path, fno.fname);
             }
+
         }
         f_closedir(&dir);
     }
