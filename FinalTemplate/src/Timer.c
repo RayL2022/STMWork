@@ -18,7 +18,7 @@ int main() {
 
 	fflush(stdout);
 	while (1){
-		printf("Elapsed: %d\n\r", elapsed);
+		printf("Elapsed: %ld\n\r", elapsed);
 	}
 
 }

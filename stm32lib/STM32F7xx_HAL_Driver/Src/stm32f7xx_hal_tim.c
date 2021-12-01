@@ -3335,7 +3335,7 @@ void HAL_TIM_IRQHandler(TIM_HandleTypeDef *htim)
 #if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
       htim->Break2Callback(htim);
 #else
-      HAL_TIMEx_Break2Callback(htim);
+      //HAL_TIMEx_Break2Callback(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
     }
   }

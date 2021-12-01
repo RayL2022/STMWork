@@ -22,8 +22,8 @@ int main(void){
 		HAL_ADC_PollForConversion(&hadc1, 1000); //Start conversion
 		adc_value = HAL_ADC_GetValue(&hadc1); //Get the value
 		HAL_Delay(10);
-		//printf("Value: %d\r\n", adc_value);
-
+		printf("Value: %d\r\n", adc_value);
+/*
 		if ((adc_value > 3060) && (adc_value < 3090)){ //Down
 			if (current_state != 1){
 				current_state = 1;
@@ -46,7 +46,7 @@ int main(void){
 				printf("State: Neutral\r\n");
 			}
 		}
-
+*/
 
 	}
 }
