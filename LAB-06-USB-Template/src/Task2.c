@@ -1,7 +1,12 @@
 /*
- * Task2.c
+ * Task2.c of Lab 06
  *
- *  Created on: Nov 22, 2021
+ *	Same mouse functionality as task 1
+ *	Ability to support MSC flash drive connection
+ *	Display contents of root directory of flash drive and
+ *	differentiate between file and directory, only upon connection
+ *
+ *  Created on: Nov 09, 2021
  *      Author: Ray & Shayne
  */
 #include "init.h"
@@ -11,10 +16,9 @@
 #include "ff_gen_drv.h"
 #include "usbh_diskio.h"
 
-USBH_HandleTypeDef husbh;
+USBH_HandleTypeDef husbh; //Handle type for USBH communication
 
-HID_MOUSE_Info_TypeDef *mouse;
-int connected = 0;
+HID_MOUSE_Info_TypeDef *mouse; //Mouse information structure
 
 FATFS *fs; //File System Structure/Workspace
 FRESULT fr; //Check return status of function runs

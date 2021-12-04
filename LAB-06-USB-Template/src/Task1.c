@@ -1,7 +1,10 @@
 //--------------------------------
-// Microprocessor Systems Lab 6 - Template - Lab06_p1_sample.c
+// Task 1 Lab 06
+// Display mouse information upon connection
+// Continuously update mouse location and button states when changed
 //--------------------------------
-//
+// 	Created on: Nov 22, 2021
+// 	Author: Ray & Shayne
 //
 
 #include "init.h"
@@ -11,8 +14,8 @@
 #include "ff_gen_drv.h"
 #include "usbh_diskio.h"
 
-USBH_HandleTypeDef husbh;
-HID_MOUSE_Info_TypeDef *mouse;
+USBH_HandleTypeDef husbh; //Handle type for USBH communication
+HID_MOUSE_Info_TypeDef *mouse; //Mouse information structure
 
 void USBH_UserProcess(USBH_HandleTypeDef *, uint8_t);
 
