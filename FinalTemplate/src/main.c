@@ -52,9 +52,9 @@ int main(void){
 
 	while(1)
 	{
-		HAL_Delay(500);
-		//pollADC();
-		my_current_state = UP;
+		HAL_Delay(100);
+		pollADC();
+		//my_current_state = UP;
 		p1_paddle = update_paddle(p1_paddle, my_current_state);
 		p2_paddle = update_paddle(p2_paddle, opponent_current_state);
 		draw_paddle(p1_paddle);
