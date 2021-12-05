@@ -4,6 +4,7 @@
 #include "stm32f769xx.h"
 #include "stm32f7xx_hal.h"
 #include "uart.h"
+#include "ADC.h"
 
 UART_HandleTypeDef U6; //Handle type structure for USART6
 

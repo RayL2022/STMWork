@@ -1,5 +1,6 @@
 #include "ADC.h"
 #include "ConfUart.h"
+#include "Draw.h"
 
 void pollADC(){
 	HAL_ADC_PollForConversion(&hadc1, 1000); //Start conversion
@@ -8,28 +9,28 @@ void pollADC(){
 	//printf("Value: %d\r\n", adc_value);
 
 	if ((adc_value > 3060) && (adc_value < 3085)){ //Down
-		if (my_current_state != '1'){
-			my_current_state = '1';
+		if (my_current_state != DOWN){
+			my_current_state = DOWN;
 			HAL_UART_Transmit(&U6, (uint8_t*) &my_current_state, 1, 10); //Transmit input to other device
 			//printf("Value: %d\r\n", adc_value);
-			printf("State: Down\r\n");
+			//printf("State: Down\r\n");
 		}
 	}
 
 	else if (adc_value < 3060){ //Up
-		if (my_current_state != '2'){
-			my_current_state = '2';
+		if (my_current_state != UP){
+			my_current_state = UP;
 			HAL_UART_Transmit(&U6, (uint8_t*) &my_current_state, 1, 10); //Transmit input to other device
 			//printf("Value: %d\r\n", adc_value);
-			printf("State: UP\r\n");
+			//printf("State: UP\r\n");
 		}
 	}
 	else if (adc_value > 3110){ //State is neutral, otherwise
-		if (my_current_state != '3'){
-			my_current_state = '3';
+		if (my_current_state != NEUTRAL){
+			my_current_state = NEUTRAL;
 			HAL_UART_Transmit(&U6, (uint8_t*) &my_current_state, 1, 10); //Transmit input to other device
 			//printf("Value: %d\r\n", adc_value);
-			printf("State: Neutral\r\n");
+			//printf("State: Neutral\r\n");
 		}
 	}
 }

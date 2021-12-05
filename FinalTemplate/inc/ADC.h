@@ -5,6 +5,10 @@
 #include "stm32f7xx_hal.h"
 #include "uart.h"
 
+#define DOWN '1'
+#define UP '2'
+#define NEUTRAL '3'
+
 ADC_HandleTypeDef hadc1;
 ADC_ChannelConfTypeDef sConfig;
 

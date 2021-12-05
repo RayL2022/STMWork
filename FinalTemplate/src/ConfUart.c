@@ -29,7 +29,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 			if (opponent_current_state == '\033'){ //Input was escape
 				printf("Escape\r\n");
 			}
-			HAL_UART_Transmit(&USB_UART, (uint8_t*) &opponent_current_state, 1, 10);  //Transmit input to device
+			//HAL_UART_Transmit(&USB_UART, (uint8_t*) &my_current_state, 1, 10);  //Transmit input to device
 		}
 	}
 }
