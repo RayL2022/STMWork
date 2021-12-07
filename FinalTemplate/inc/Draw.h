@@ -5,13 +5,23 @@
 #include "stm32f7xx_hal.h"
 #include "uart.h"
 
-#define MIN_X_SPEED 3
-#define MAX_X_SPEED 11
-#define MIN_Y_SPEED 10
-#define MAX_Y_SPEED 40
+#define MIN_ROW 1
+#define MAX_ROW 30
+#define MIN_COL 1
+#define MAX_COL 57
+
+//We can round that x speed is 2 times faster than x speed
+#define MIN_X_SPEED 10
+#define MAX_X_SPEED 20
+#define MIN_Y_SPEED 5
+#define MAX_Y_SPEED 10
+
+//Right now we don't handle if X or Y is zero
+
 
 typedef struct{
-	uint8_t x_row, y_column, x_speed, y_speed, last_x, last_y;
+	uint8_t x_column, y_row, last_x, last_y;
+	int x_speed, y_speed;
 } ball;
 
 typedef struct{
@@ -31,7 +41,7 @@ typedef struct{
 } paddle;
 
 typedef struct{
-	uint8_t score, orientation;
+	uint8_t score;
 } player;
 
 paddle p1_paddle;
@@ -41,10 +51,11 @@ player p1;
 player p2;
 
 //Function Prototypes
-void draw_paddle(paddle test_paddle);
-paddle update_paddle(paddle test_paddle, char state);
+void draw_paddle(paddle my_paddle);
+paddle update_paddle(paddle my_paddle, char state);
 void draw_ball(ball test_ball);
-void update_ball(ball test_ball);
+ball update_ball(ball test_ball);
+ball check_bounce(ball test_ball, paddle my_paddle, paddle opp_paddle);
 void update_score_and_time(player p1, player p2, uint32_t current_time);
 void game_reset(void);
 

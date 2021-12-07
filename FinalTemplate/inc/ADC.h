@@ -12,11 +12,14 @@
 ADC_HandleTypeDef hadc1;
 ADC_ChannelConfTypeDef sConfig;
 
-uint16_t adc_value; //ADC value
+DMA_HandleTypeDef hdma1; //DMA HandleType
+
+uint32_t adc_value[1]; //ADC value
 char my_current_state;
 
 //Function Prototypes
 void configureADC(void);
 void pollADC(void);
+void configureDMA(void); //DMA Configurations Needed
 
 #endif
