@@ -24,28 +24,28 @@ void Init_Timer() {
 // -- User Functions -------------
 //
 void select_time() {
-	printf("\033[12;40HEnter: \n\r");
+	//printf("\033[12;40HEnter: \n\r");
 	while (input2 == 0){
 		input2 = getchar();
-		printf("%d\n\r", input2);
+		//printf("%d\n\r", input2);
 	}
-	printf("Input: %c\n\r", input2);
+	//printf("Input: %c\n\r", input2);
 	if (input2 == '5'){
-		printf("\033[2J"); fflush(stdout);
+		//printf("\033[2J"); fflush(stdout);
 		elapsed = 300;
 		start = 1;
 		counts = 1;
 	}
 
 	if (input2 == '3'){
-		printf("\033[2J"); fflush(stdout);
+		//printf("\033[2J"); fflush(stdout);
 		elapsed = 180;
 		start = 1;
 		counts = 1;
 	}
 
 	if (input2 == '1'){
-		printf("\033[2J"); fflush(stdout);
+		//printf("\033[2J"); fflush(stdout);
 		elapsed = 60;
 		start = 1;
 		counts = 1;
@@ -55,27 +55,34 @@ void select_time() {
 void count_down(){
 	minute = elapsed/60;
 	second = (elapsed%60);
-	update_score_and_time(p1, p2, minute, second);
+	Flag2 = 1;
+	//update_score_and_time(p1, p2, minute, second);
 }
 
 void speed(){
 	//Needs edits the values are not correct. Thats how many pixel/s/10 but each pixel movement must be seen
+	Flag=1;
 	if ((one-saved) > 20){
 		saved = one;
+		printf("Enter\n\r");
 		if (play_ball.x_speed < 0){
 			if(play_ball.x_speed > MIN_X_SPEED){
-				play_ball.x_speed --;
+				play_ball.x_speed -= 1;
 			}
-			int speedUP = -1000/play_ball.x.speed;
-			HAL_Delay(speedUP);
-			play_ball = update_ball(play_ball);
+			int speedUP = -1000/play_ball.x_speed;
+			printf("%d\n\r", -1000/play_ball.x_speed);
+			//HAL_Delay(speedUP);
+			Flag = 1;
+			//play_ball = update_ball(play_ball);
 		}
 		else if (play_ball.x_speed > 0){
 			if(play_ball.x_speed < MAX_X_SPEED){
-				play_ball.x_speed ++;
+				play_ball.x_speed += 1;
 			}
-			HAL_Delay(1000/play_ball.x_speed);
-			play_ball = update_ball(play_ball);
+			printf("%d\n\r", 1000/play_ball.x_speed);
+			//HAL_Delay(1000/play_ball.x_speed);
+			Flag = 1;
+			//play_ball = update_ball(play_ball);
 		}
 	}
 
@@ -90,13 +97,15 @@ void TIM7_IRQHandler() {
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 // This callback is automatically called by the HAL on the UEV event
+	uint8_t score1;
+	uint8_t score2;
 	if(htim->Instance == TIM7){
 		if ((start == 1)){
 			if (one == 0){
 				score1 = p1.score;
 				score2 = p2.score;
-				printf("\033[13;38H\033[;40m "); fflush(stdout);
-				printf("%ld:00", elapsed/60); fflush(stdout);
+				//printf("\033[1;29H\033[;40m "); fflush(stdout);
+				//printf("%ld:00", elapsed/60); fflush(stdout);
 			}
 			one++;
 			if (p1.score != score1){
@@ -108,7 +117,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 				score2=p2.score;
 			}
 			speed();
-			if ((one%10 == 0)){
+			if ((one%10 == 0) && elapsed != 0){
 				elapsed--;  //Decrement elapsed
 				count_down();
 			}

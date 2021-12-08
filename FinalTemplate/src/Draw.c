@@ -1,5 +1,6 @@
 #include "Draw.h"
 #include "ADC.h"
+#include "Timer.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -139,7 +140,7 @@ ball check_bounce(ball test_ball, paddle my_paddle, paddle opp_paddle){
 			printf("\033[%u;%uH\033[;40m ", test_ball.y_row, test_ball.x_column); //Erase Last Ball Position
 			fflush(stdout);
 			p2.score += 1;
-			update_score_and_time(p1, p2, 4, 56);
+			//update_score_and_time(p1, p2, 4, 56);
 			game_reset();
 			return play_ball;
 		}
@@ -174,7 +175,7 @@ ball check_bounce(ball test_ball, paddle my_paddle, paddle opp_paddle){
 			printf("\033[%u;%uH\033[;40m ", test_ball.y_row, test_ball.x_column); //Erase Last Ball Position
 			fflush(stdout);
 			p1.score += 1;
-			update_score_and_time(p1, p2, 4, 56);
+			//update_score_and_time(p1, p2, 4, 56);
 			game_reset();
 			return play_ball;
 		}
@@ -198,7 +199,6 @@ void update_score_and_time(player p1, player p2, uint8_t front_time, uint8_t bac
 	else{
 		printf("\033[%u;%uH\033[;40m%u", MIN_ROW, MAX_COL - 1, p2.score);
 	}
-
 	if (front_time < 10){
 		printf("\033[%u;%uH\033[;40m%u", MIN_ROW, (MAX_COL/2) - 1, 0);
 		printf("\033[%u;%uH\033[;40m%u", MIN_ROW, (MAX_COL/2), front_time);

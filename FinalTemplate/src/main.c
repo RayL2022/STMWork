@@ -2,11 +2,13 @@
 #include "Draw.h"
 #include "ADC.h"
 #include "ConfUart.h"
+#include "Timer.h"
 
 
 int main(void){
 	Sys_Init();
 	HAL_Init();
+	Init_Timer();
 
 	configureADC();
 	configureUart();
@@ -60,22 +62,29 @@ int main(void){
 	p2_paddle.fourth_x = MAX_COL;
 	p1_paddle.fourth_y = ((MAX_ROW - 2 - 4) / 2) + 5;
 	p2_paddle.fourth_y = ((MAX_ROW - 2 - 4) / 2) + 5;
-
+	select_time();
 	while(1)
 	{
 		pollADC();
-		HAL_Delay(50);
+		//HAL_Delay(20);
 		//my_current_state = UP;
 		//opponent_current_state = NEUTRAL;
 		p1_paddle = update_paddle(p1_paddle, my_current_state);
 		p2_paddle = update_paddle(p2_paddle, opponent_current_state);
 		draw_paddle(p1_paddle);
 		draw_paddle(p2_paddle);
-		play_ball = update_ball(play_ball);
+		if (Flag == 1){
+			play_ball = update_ball(play_ball);
+			Flag=0;
+		}
 		play_ball = check_bounce(play_ball, p1_paddle, p2_paddle);
 		draw_ball(play_ball);
-		update_score_and_time(p1, p2, 10, 9);
+		if (Flag2 == 1){
+			update_score_and_time(p1, p2, minute, second);
+		}
+		while (elapsed == 0);
 		/*
+		 *
 		play_ball.x_row += 1;
 		if (play_ball.x_row > 25){
 			play_ball.x_row = 25;

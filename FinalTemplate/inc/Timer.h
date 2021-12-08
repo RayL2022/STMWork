@@ -19,6 +19,8 @@ char counts;
 char score;
 char speedx;
 char speedy;
+uint8_t Flag;
+uint8_t Flag2;
 
 //Function Prototypes
 void Init_Timer();
