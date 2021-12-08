@@ -20,17 +20,26 @@ int main(void){
 
 	while (column < MAX_COL + 1){
 		printf("\033[%u;%uH-", MIN_ROW, column); fflush(stdout);
-		printf("\033[%u;%uH-", MAX_COL, column); fflush(stdout);
+		printf("\033[%u;%uH-", MAX_ROW, column); fflush(stdout);
 		column += 1;
 	}
 
+	p1.score = 0;
+	p2.score = 0;
+
+	game_reset();
+	/*
 	play_ball.x_column = 30;
 	play_ball.y_row = 16;
 	play_ball.last_x = 30;
 	play_ball.last_y = 16;
 
-	play_ball.x_speed = -1;
-	play_ball.y_speed = -1;
+	play_ball.x_speed = -10;
+	play_ball.y_speed = -10;
+
+	play_ball.x_dir = -1;
+	play_ball.y_dir = -1;
+	*/
 
 	p1_paddle.first_x = MIN_COL;
 	p2_paddle.first_x = MAX_COL;
@@ -55,7 +64,7 @@ int main(void){
 	while(1)
 	{
 		pollADC();
-		HAL_Delay(150);
+		HAL_Delay(50);
 		//my_current_state = UP;
 		//opponent_current_state = NEUTRAL;
 		p1_paddle = update_paddle(p1_paddle, my_current_state);
@@ -65,6 +74,7 @@ int main(void){
 		play_ball = update_ball(play_ball);
 		play_ball = check_bounce(play_ball, p1_paddle, p2_paddle);
 		draw_ball(play_ball);
+		update_score_and_time(p1, p2, 10, 9);
 		/*
 		play_ball.x_row += 1;
 		if (play_ball.x_row > 25){

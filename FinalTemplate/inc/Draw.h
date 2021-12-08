@@ -11,9 +11,9 @@
 #define MAX_COL 57
 
 //We can round that x speed is 2 times faster than x speed
-#define MIN_X_SPEED 10
+#define MIN_X_SPEED -10
 #define MAX_X_SPEED 20
-#define MIN_Y_SPEED 5
+#define MIN_Y_SPEED -5
 #define MAX_Y_SPEED 10
 
 //Right now we don't handle if X or Y is zero
@@ -21,7 +21,7 @@
 
 typedef struct{
 	uint8_t x_column, y_row, last_x, last_y;
-	int x_speed, y_speed;
+	int x_speed, y_speed, x_dir, y_dir;
 } ball;
 
 typedef struct{
@@ -56,7 +56,7 @@ paddle update_paddle(paddle my_paddle, char state);
 void draw_ball(ball test_ball);
 ball update_ball(ball test_ball);
 ball check_bounce(ball test_ball, paddle my_paddle, paddle opp_paddle);
-void update_score_and_time(player p1, player p2, uint32_t current_time);
+void update_score_and_time(player p1, player p2, uint8_t front_time, uint8_t back_time);
 void game_reset(void);
 
 #endif
