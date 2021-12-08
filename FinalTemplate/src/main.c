@@ -18,48 +18,63 @@ int main(void){
 	int column = 1;
 	printf("\033c\033[2J"); fflush(stdout);
 
-	while (column < 81){
-		printf("\033[%u;%uH-", 1, column); fflush(stdout);
-		printf("\033[%u;%uH-", 25, column); fflush(stdout);
+	while (column < MAX_COL + 1){
+		printf("\033[%u;%uH-", MIN_ROW, column); fflush(stdout);
+		printf("\033[%u;%uH-", MAX_ROW, column); fflush(stdout);
 		column += 1;
 	}
 
-	play_ball.x_row = 2;
-	play_ball.y_column = 2;
-	play_ball.last_x = 2;
-	play_ball.last_y = 2;
+	p1.score = 0;
+	p2.score = 0;
 
+	game_reset();
+	/*
+	play_ball.x_column = 30;
+	play_ball.y_row = 16;
+	play_ball.last_x = 30;
+	play_ball.last_y = 16;
 
-	p1_paddle.first_x = 10;
-	p2_paddle.first_x = 10;
-	p1_paddle.first_y = 1;
-	p2_paddle.first_y = 80;
+	play_ball.x_speed = -10;
+	play_ball.y_speed = -10;
 
-	p1_paddle.second_x = 11;
-	p2_paddle.second_x = 11;
-	p1_paddle.second_y = 1;
-	p2_paddle.second_y = 80;
+	play_ball.x_dir = -1;
+	play_ball.y_dir = -1;
+	*/
 
-	p1_paddle.third_x = 12;
-	p2_paddle.third_x = 12;
-	p1_paddle.third_y = 1;
-	p2_paddle.third_y = 80;
+	p1_paddle.first_x = MIN_COL;
+	p2_paddle.first_x = MAX_COL;
+	p1_paddle.first_y = ((MAX_ROW - 2 - 4) / 2) + 2;
+	p2_paddle.first_y = ((MAX_ROW - 2 - 4) / 2) + 2;
 
-	p1_paddle.fourth_x = 13;
-	p2_paddle.fourth_x = 13;
-	p1_paddle.fourth_y = 1;
-	p2_paddle.fourth_y = 80;
+	p1_paddle.second_x = MIN_COL;
+	p2_paddle.second_x = MAX_COL;
+	p1_paddle.second_y = ((MAX_ROW - 2 - 4) / 2) + 3;
+	p2_paddle.second_y = ((MAX_ROW - 2 - 4) / 2) + 3;
+
+	p1_paddle.third_x = MIN_COL;
+	p2_paddle.third_x = MAX_COL;
+	p1_paddle.third_y = ((MAX_ROW - 2 - 4) / 2) + 4;
+	p2_paddle.third_y = ((MAX_ROW - 2 - 4) / 2) + 4;
+
+	p1_paddle.fourth_x = MIN_COL;
+	p2_paddle.fourth_x = MAX_COL;
+	p1_paddle.fourth_y = ((MAX_ROW - 2 - 4) / 2) + 5;
+	p2_paddle.fourth_y = ((MAX_ROW - 2 - 4) / 2) + 5;
 
 	while(1)
 	{
-		HAL_Delay(100);
 		pollADC();
+		HAL_Delay(50);
 		//my_current_state = UP;
+		//opponent_current_state = NEUTRAL;
 		p1_paddle = update_paddle(p1_paddle, my_current_state);
 		p2_paddle = update_paddle(p2_paddle, opponent_current_state);
 		draw_paddle(p1_paddle);
 		draw_paddle(p2_paddle);
+		play_ball = update_ball(play_ball);
+		play_ball = check_bounce(play_ball, p1_paddle, p2_paddle);
 		draw_ball(play_ball);
+		update_score_and_time(p1, p2, 10, 9);
 		/*
 		play_ball.x_row += 1;
 		if (play_ball.x_row > 25){
