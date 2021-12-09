@@ -18,7 +18,7 @@ int main(void){
 	time_screen();
 	while(1)
 	{
-		while (D5_button == 1 || elapsed == 0);
+		while (D5_button == 1);
 		pollADC();
 		HAL_Delay(75);
 		p1_paddle = update_paddle(p1_paddle, my_current_state);
@@ -34,6 +34,7 @@ int main(void){
 		if (Flag2 == 1){
 			update_score_and_time(p1, p2, minute, second);
 		}
+		while (elapsed == 0);
 	}
 }
 

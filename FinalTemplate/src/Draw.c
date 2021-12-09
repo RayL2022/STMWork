@@ -32,12 +32,6 @@ paddle update_paddle(paddle my_paddle, char state){
 			asm volatile ("SUB %[result], %[oper1], %[oper2]"
 					: [result] "+r" (my_paddle.fourth_y) //Read and Write to paddle variable
 					: [oper1] "r" (my_paddle.fourth_y), [oper2] "r" (one)); //subtract 1
-			/*
-			my_paddle.first_y -= 1;
-			my_paddle.second_y -= 1;
-			my_paddle.third_y -= 1;
-			my_paddle.fourth_y -= 1;
-			*/
 		}
 	}
 	else if (state == DOWN){
@@ -57,12 +51,6 @@ paddle update_paddle(paddle my_paddle, char state){
 			asm volatile ("ADD %[result], %[oper1], %[oper2]"
 					: [result] "+r" (my_paddle.fourth_y) //Read and Write to paddle variable
 					: [oper1] "r" (my_paddle.fourth_y), [oper2] "r" (one)); //subtract 1
-			/*
-			my_paddle.first_y += 1;
-			my_paddle.second_y += 1;
-			my_paddle.third_y += 1;
-			my_paddle.fourth_y += 1;
-			*/
 		}
 	}
 	return my_paddle;
@@ -114,7 +102,7 @@ ball check_bounce(ball test_ball, paddle my_paddle, paddle opp_paddle){
 
 	else if (test_ball.x_column - 1 == MIN_COL){
 		//Check if Paddle here, else p2 scores (left)
-		if (test_ball.y_row == my_paddle.first_y){\
+		if (test_ball.y_row == my_paddle.first_y){
 			test_ball.x_column = MIN_COL + 1;
 			test_ball.y_speed *= -1;
 			test_ball.y_dir *= -1;

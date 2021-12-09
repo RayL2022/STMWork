@@ -6,7 +6,6 @@
 void pollADC(){
 	HAL_ADC_Start_DMA(&hadc1, adc_value, 1);
 	HAL_Delay(10);
-	//printf("\033c\033[12;40HValue: %d\r\n", adc_value[0]);
 }
 
 void configureADC()
@@ -88,8 +87,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		if (my_current_state != DOWN){
 			my_current_state = DOWN;
 			HAL_UART_Transmit(&U6, (uint8_t*) &my_current_state, 1, 10); //Transmit input to other device
-			//printf("Value: %d\r\n", adc_value);
-			//printf("State: Down\r\n");
 		}
 	}
 
@@ -97,49 +94,12 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		if (my_current_state != UP){
 			my_current_state = UP;
 			HAL_UART_Transmit(&U6, (uint8_t*) &my_current_state, 1, 10); //Transmit input to other device
-			//printf("Value: %d\r\n", adc_value);
-			//printf("State: UP\r\n");
 		}
 	}
 	else if (adc_value[0] < 3050 && adc_value[0] > 2900){ //State is neutral, otherwise
 		if (my_current_state != NEUTRAL){
 			my_current_state = NEUTRAL;
 			HAL_UART_Transmit(&U6, (uint8_t*) &my_current_state, 1, 10); //Transmit input to other device
-			//printf("Value: %d\r\n", adc_value);
-			//printf("State: Neutral\r\n");
 		}
 	}
-}
-
-void Init_GPIO(void) {
-    __HAL_RCC_GPIOC_CLK_ENABLE(); //Enable Clock for Port C (HAL)
-
-    //Configure D5(PC8) as input, with pull-up resistors enabled (HAL)
-    GPIO_InitTypeDef D5;
-    D5.Pin = GPIO_PIN_8; //On pin 8
-	D5.Mode = GPIO_MODE_IT_RISING; //Set Mode to Interrupt on Rising Edge
-	D5.Pull = GPIO_PULLUP; //Enable pull-up
-	HAL_GPIO_Init(GPIOC, &D5); //Configure this to Port C
-
-	//Set interrupt enable for EXTI8 (included in 9_5)
-	HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
-}
-
-//HAL - GPIO/EXTI Handler
-void EXTI9_5_IRQHandler(void) {
-	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8); //Pin 8 is the interrupt trigger
-}
-
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-	if (D5_button == 0){
-		HAL_TIM_Base_Stop_IT(&htim7); //Start the timer
-		D5_button = 1; //Button is on
-		user_input = 0;
-		while (user_input == 0){
-			HAL_UART_Receive(&USB_UART, (uint8_t*) &user_input, 1, HAL_MAX_DELAY); //Trigger receiving input for U6
-		}
-		D5_button = 0;
-		HAL_TIM_Base_Start_IT(&htim7); //Start the timer
-	}
-
 }

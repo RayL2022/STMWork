@@ -23,6 +23,5 @@ volatile int user_input;
 void configureADC(void);
 void pollADC(void);
 void configureDMA(void); //DMA Configurations Needed
-void Init_GPIO(void);
 
 #endif

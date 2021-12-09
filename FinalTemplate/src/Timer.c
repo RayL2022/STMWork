@@ -26,28 +26,20 @@ void Init_Timer() {
 void select_time() {
 	while (input2 == 0){
 		input2 = getchar();
-		//printf("%d\n\r", input2);
 	}
-	//printf("Input: %c\n\r", input2);
 	if (input2 == '5'){
-		//printf("\033[2J"); fflush(stdout);
 		elapsed = 300;
 		start = 1;
-		counts = 1;
 	}
 
 	if (input2 == '3'){
-		//printf("\033[2J"); fflush(stdout);
 		elapsed = 180;
 		start = 1;
-		counts = 1;
 	}
 
 	if (input2 == '1'){
-		//printf("\033[2J"); fflush(stdout);
 		elapsed = 60;
 		start = 1;
-		counts = 1;
 	}
 }
 
@@ -55,37 +47,8 @@ void count_down(){
 	minute = elapsed/60;
 	second = (elapsed%60);
 	Flag2 = 1;
-	//update_score_and_time(p1, p2, minute, second);
 }
 
-void speed(){
-	//Needs edits the values are not correct. Thats how many pixel/s/10 but each pixel movement must be seen
-	Flag=1;
-	if ((one-saved) > 20){
-		saved = one;
-		//printf("Enter\n\r");
-		if (play_ball.x_speed < 0){
-			if(play_ball.x_speed > MIN_X_SPEED){
-				play_ball.x_speed -= 1;
-			}
-			int speedUP = -1000/play_ball.x_speed;
-			//printf("%d\n\r", -1000/play_ball.x_speed);
-			//HAL_Delay(speedUP);
-			Flag = 1;
-			//play_ball = update_ball(play_ball);
-		}
-		else if (play_ball.x_speed > 0){
-			if(play_ball.x_speed < MAX_X_SPEED){
-				play_ball.x_speed += 1;
-			}
-			//printf("%d\n\r", 1000/play_ball.x_speed);
-			//HAL_Delay(1000/play_ball.x_speed);
-			Flag = 1;
-			//play_ball = update_ball(play_ball);
-		}
-	}
-
-}
 // -- ISRs (IRQs) -------------
 //
 void TIM7_IRQHandler() {
@@ -96,26 +59,10 @@ void TIM7_IRQHandler() {
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 // This callback is automatically called by the HAL on the UEV event
-	uint8_t score1;
-	uint8_t score2;
 	if(htim->Instance == TIM7){
 		if ((start == 1) && (D5_button == 0)){
-			if (one == 0){
-				score1 = p1.score;
-				score2 = p2.score;
-				//printf("\033[1;29H\033[;40m "); fflush(stdout);
-				//printf("%ld:00", elapsed/60); fflush(stdout);
-			}
 			one++;
-			if (p1.score != score1){
-				saved = one;
-				score1=p1.score;
-			}
-			if (p2.score != score2){
-				saved = one;
-				score2=p2.score;
-			}
-			speed();
+			Flag = 1;
 			if ((one%10 == 0) && elapsed != 0){
 				elapsed--;  //Decrement elapsed
 				count_down();
@@ -123,6 +70,61 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		}
 	}
 }
+
+
+void Init_GPIO(void) {
+    __HAL_RCC_GPIOC_CLK_ENABLE(); //Enable Clock for Port C (HAL)
+
+    //Configure D5(PC8) as input, with pull-up resistors enabled (HAL)
+    GPIO_InitTypeDef D5;
+    D5.Pin = GPIO_PIN_8; //On pin 8
+	D5.Mode = GPIO_MODE_IT_RISING; //Set Mode to Interrupt on Rising Edge
+	D5.Pull = GPIO_PULLUP; //Enable pull-up
+	HAL_GPIO_Init(GPIOC, &D5); //Configure this to Port C
+
+	//Set interrupt enable for EXTI8 (included in 9_5)
+	HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+}
+
+//HAL - GPIO/EXTI Handler
+void EXTI9_5_IRQHandler(void) {
+	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8); //Pin 8 is the interrupt trigger
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+	if (D5_button == 0){
+		HAL_TIM_Base_Stop_IT(&htim7); //Start the timer
+		D5_button = 1; //Button is on
+		user_input = 0;
+		while (user_input == 0){
+			HAL_UART_Receive(&USB_UART, (uint8_t*) &user_input, 1, HAL_MAX_DELAY); //Trigger receiving input for U6
+		}
+		play_ball.x_speed = 0;
+		play_ball.y_speed = 0;
+
+		while ((play_ball.x_speed == 0) || (play_ball.x_speed == 0)){
+			play_ball.x_speed = (rand() % (MAX_X_SPEED - MIN_X_SPEED + 1)) + MIN_X_SPEED;
+			play_ball.y_speed = (rand() % (MAX_Y_SPEED - MIN_Y_SPEED + 1)) + MIN_Y_SPEED;
+		}
+
+		if (play_ball.x_speed > 0){
+			play_ball.x_dir = 1;
+		}else{
+			play_ball.x_dir = -1;
+		}
+
+		if (play_ball.y_speed > 0){
+			play_ball.y_dir = 1;
+		}else{
+			play_ball.y_dir = -1;
+		}
+
+		D5_button = 0;
+		HAL_TIM_Base_Start_IT(&htim7); //Start the timer
+	}
+
+}
+
 
 void HAL_TIMEx_BreakCallback(TIM_HandleTypeDef *htim){}
 void HAL_TIMEx_CommutationCallback(TIM_HandleTypeDef *htim){}

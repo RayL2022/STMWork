@@ -6,26 +6,24 @@
 #include "uart.h"
 #include "init.h"
 #include "ADC.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 TIM_HandleTypeDef htim7;
 volatile uint32_t elapsed;
 volatile uint32_t one;
-volatile uint32_t saved;
 
 char minute;
 char second;
 volatile char input2;
 volatile char start;
-char counts;
-char score;
-char speedx;
-char speedy;
 uint8_t Flag;
 uint8_t Flag2;
 
 //Function Prototypes
-void Init_Timer();
-void select_time();
-void speed();
+void Init_Timer(void);
+void select_time(void);
+void count_down(void);
+void Init_GPIO(void);
 
 #endif
