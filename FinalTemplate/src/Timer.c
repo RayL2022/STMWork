@@ -24,7 +24,6 @@ void Init_Timer() {
 // -- User Functions -------------
 //
 void select_time() {
-	//printf("\033[12;40HEnter: \n\r");
 	while (input2 == 0){
 		input2 = getchar();
 		//printf("%d\n\r", input2);
@@ -64,13 +63,13 @@ void speed(){
 	Flag=1;
 	if ((one-saved) > 20){
 		saved = one;
-		printf("Enter\n\r");
+		//printf("Enter\n\r");
 		if (play_ball.x_speed < 0){
 			if(play_ball.x_speed > MIN_X_SPEED){
 				play_ball.x_speed -= 1;
 			}
 			int speedUP = -1000/play_ball.x_speed;
-			printf("%d\n\r", -1000/play_ball.x_speed);
+			//printf("%d\n\r", -1000/play_ball.x_speed);
 			//HAL_Delay(speedUP);
 			Flag = 1;
 			//play_ball = update_ball(play_ball);
@@ -79,7 +78,7 @@ void speed(){
 			if(play_ball.x_speed < MAX_X_SPEED){
 				play_ball.x_speed += 1;
 			}
-			printf("%d\n\r", 1000/play_ball.x_speed);
+			//printf("%d\n\r", 1000/play_ball.x_speed);
 			//HAL_Delay(1000/play_ball.x_speed);
 			Flag = 1;
 			//play_ball = update_ball(play_ball);
@@ -100,7 +99,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	uint8_t score1;
 	uint8_t score2;
 	if(htim->Instance == TIM7){
-		if ((start == 1)){
+		if ((start == 1) && (D5_button == 0)){
 			if (one == 0){
 				score1 = p1.score;
 				score2 = p2.score;

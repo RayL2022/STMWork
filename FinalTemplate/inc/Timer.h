@@ -5,6 +5,7 @@
 #include "stm32f7xx_hal.h"
 #include "uart.h"
 #include "init.h"
+#include "ADC.h"
 
 TIM_HandleTypeDef htim7;
 volatile uint32_t elapsed;
@@ -13,8 +14,8 @@ volatile uint32_t saved;
 
 char minute;
 char second;
-char input2;
-char start;
+volatile char input2;
+volatile char start;
 char counts;
 char score;
 char speedx;

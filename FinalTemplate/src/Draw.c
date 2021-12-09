@@ -1,6 +1,7 @@
 #include "Draw.h"
 #include "ADC.h"
 #include "Timer.h"
+#include "ConfUart.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -141,7 +142,7 @@ ball check_bounce(ball test_ball, paddle my_paddle, paddle opp_paddle){
 			fflush(stdout);
 			p2.score += 1;
 			//update_score_and_time(p1, p2, 4, 56);
-			game_reset();
+			ball_reset();
 			return play_ball;
 		}
 	}
@@ -176,7 +177,7 @@ ball check_bounce(ball test_ball, paddle my_paddle, paddle opp_paddle){
 			fflush(stdout);
 			p1.score += 1;
 			//update_score_and_time(p1, p2, 4, 56);
-			game_reset();
+			ball_reset();
 			return play_ball;
 		}
 	}
@@ -218,7 +219,7 @@ void update_score_and_time(player p1, player p2, uint8_t front_time, uint8_t bac
 	}
 };
 
-void game_reset(void){
+void ball_reset(void){
 	play_ball.x_column = 29;
 	play_ball.y_row = (rand() % ((MAX_ROW - 1) - (MIN_ROW + 1) + 1)) + (MIN_ROW + 1);
 	play_ball.last_x = 0;
@@ -248,3 +249,51 @@ void game_reset(void){
 
 };
 
+void time_screen(void){
+	input2 = 0;
+	printf("\033c\033[2J"); fflush(stdout);
+	printf("\033[15;11H"); fflush(stdout);
+	printf("Select Game Time By Pressing: 1, 3, 5"); fflush(stdout);
+	select_time();
+	init_game();
+}
+
+void init_game(void){
+	D5_button = 0;
+	my_current_state = 0; //1 for Down, 2 for Up, 3 for Neutral
+	input = 0;
+	int column = 1;
+	printf("\033c\033[2J"); fflush(stdout);
+
+	while (column < MAX_COL + 1){
+		printf("\033[%u;%uH-", MIN_ROW, column); fflush(stdout);
+		printf("\033[%u;%uH-", MAX_ROW, column); fflush(stdout);
+		column += 1;
+	}
+
+	p1.score = 0;
+	p2.score = 0;
+
+	ball_reset();
+
+	p1_paddle.first_x = MIN_COL;
+	p2_paddle.first_x = MAX_COL;
+	p1_paddle.first_y = ((MAX_ROW - 2 - 4) / 2) + 2;
+	p2_paddle.first_y = ((MAX_ROW - 2 - 4) / 2) + 2;
+
+	p1_paddle.second_x = MIN_COL;
+	p2_paddle.second_x = MAX_COL;
+	p1_paddle.second_y = ((MAX_ROW - 2 - 4) / 2) + 3;
+	p2_paddle.second_y = ((MAX_ROW - 2 - 4) / 2) + 3;
+
+	p1_paddle.third_x = MIN_COL;
+	p2_paddle.third_x = MAX_COL;
+	p1_paddle.third_y = ((MAX_ROW - 2 - 4) / 2) + 4;
+	p2_paddle.third_y = ((MAX_ROW - 2 - 4) / 2) + 4;
+
+	p1_paddle.fourth_x = MIN_COL;
+	p2_paddle.fourth_x = MAX_COL;
+	p1_paddle.fourth_y = ((MAX_ROW - 2 - 4) / 2) + 5;
+	p2_paddle.fourth_y = ((MAX_ROW - 2 - 4) / 2) + 5;
+
+}

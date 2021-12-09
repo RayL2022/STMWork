@@ -57,6 +57,8 @@ void draw_ball(ball test_ball);
 ball update_ball(ball test_ball);
 ball check_bounce(ball test_ball, paddle my_paddle, paddle opp_paddle);
 void update_score_and_time(player p1, player p2, uint8_t front_time, uint8_t back_time);
-void game_reset(void);
+void ball_reset(void);
+void time_screen(void);
+void init_game(void);
 
 #endif
