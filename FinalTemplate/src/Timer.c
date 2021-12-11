@@ -25,47 +25,49 @@ void Init_Timer() {
 //
 void select_time() {
 	while (input2 == 0){
-		input2 = getchar();
+		input2 = getchar();	//Request a user input and wait for it
 	}
 	if (input2 == '5'){
-		elapsed = 300;
-		start = 1;
+		elapsed = 300;	//5 Minute game
+		start = 1;	//Start Game
 	}
 
 	if (input2 == '3'){
-		elapsed = 180;
-		start = 1;
+		elapsed = 180;	//3 Minute game
+		start = 1;	//Start Game
 	}
 
 	if (input2 == '1'){
-		elapsed = 60;
-		start = 1;
+		elapsed = 60;	//1 Minute Game
+		start = 1;	//Start Game
 	}
 }
 
 void count_down(){
-	minute = elapsed/60;
-	second = (elapsed%60);
-	Flag2 = 1;
+	minute = elapsed/60;	//Calculate Minute Portion of the Timer
+	second = (elapsed%60);	//Calculate Seconds Portion of the Timer
+	Flag2 = 1;	//Set flag for main code to print
 }
 
 // -- ISRs (IRQs) -------------
 //
+
+//TIM7 IRQHandler
 void TIM7_IRQHandler() {
 	HAL_TIM_IRQHandler(&htim7);
 }
 
 
-
+//TIM Callback
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 // This callback is automatically called by the HAL on the UEV event
 	if(htim->Instance == TIM7){
 		if ((start == 1) && (D5_button == 0)){
 			one++;
-			Flag = 1;
-			if ((one%10 == 0) && elapsed != 0){
+			Flag = 1;	//Set flag for main code to update ball
+			if ((one%10 == 0) && elapsed != 0){		//Every 1 second if time is not 0
 				elapsed--;  //Decrement elapsed
-				count_down();
+				count_down();	//Call count_down
 			}
 		}
 	}
@@ -92,19 +94,19 @@ void EXTI9_5_IRQHandler(void) {
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-	if (D5_button == 0){
-		HAL_TIM_Base_Stop_IT(&htim7); //Start the timer
+	if (D5_button == 0){	//SW on analog stick is pushed
+		HAL_TIM_Base_Stop_IT(&htim7); //Stop the timer
 		D5_button = 1; //Button is on
 		user_input = 0;
 		while (user_input == 0){
 			HAL_UART_Receive(&USB_UART, (uint8_t*) &user_input, 1, HAL_MAX_DELAY); //Trigger receiving input for U6
 		}
 		play_ball.x_speed = 0;
-		play_ball.y_speed = 0;
+		play_ball.y_speed = 0;	//Set ball speed to 0
 
 		while ((play_ball.x_speed == 0) || (play_ball.x_speed == 0)){
 			play_ball.x_speed = (rand() % (MAX_X_SPEED - MIN_X_SPEED + 1)) + MIN_X_SPEED;
-			play_ball.y_speed = (rand() % (MAX_Y_SPEED - MIN_Y_SPEED + 1)) + MIN_Y_SPEED;
+			play_ball.y_speed = (rand() % (MAX_Y_SPEED - MIN_Y_SPEED + 1)) + MIN_Y_SPEED;	//Pick a random speed for the ball
 		}
 
 		if (play_ball.x_speed > 0){
@@ -116,7 +118,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		if (play_ball.y_speed > 0){
 			play_ball.y_dir = 1;
 		}else{
-			play_ball.y_dir = -1;
+			play_ball.y_dir = -1;		//Increment ball based off random speed selected
 		}
 
 		D5_button = 0;
@@ -127,5 +129,5 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 
 void HAL_TIMEx_BreakCallback(TIM_HandleTypeDef *htim){}
-void HAL_TIMEx_CommutationCallback(TIM_HandleTypeDef *htim){}
+void HAL_TIMEx_CommutationCallback(TIM_HandleTypeDef *htim){}	//Needed for timer callback to function
 
