@@ -6,35 +6,35 @@
 
 
 int main(void){
+	//System and HAL Initializations
 	Sys_Init();
 	HAL_Init();
-	Init_Timer();
-	Init_GPIO();
-	configureADC();
-	configureUart();
+	Init_Timer(); //Initial Timer
+	Init_GPIO(); //Intial GPIO for Pause Button
+	configureADC(); //Configure the ADC for inputs
+	configureUart(); //Configure UART for transmission
 
-	HAL_ADC_Start(&hadc1);
-
-	time_screen();
+	time_screen(); //Print the choose time screen
+	HAL_ADC_Start_DMA(&hadc1, adc_value, 1); //Start getting ADC Readings
 	while(1)
 	{
-		while (D5_button == 1);
-		pollADC();
-		HAL_Delay(75);
-		p1_paddle = update_paddle(p1_paddle, my_current_state);
-		p2_paddle = update_paddle(p2_paddle, opponent_current_state);
+		//Halt if the pause button was triggered or time ran out
+		while (elapsed == 0);
+		HAL_Delay(75); //Delay to ensure enough time for values to be updated
+		p1_paddle = update_paddle(p1_paddle, my_current_state); //try to update my paddle
+		p2_paddle = update_paddle(p2_paddle, opponent_current_state); //try to update opponent paddle
+		//draw both paddles
 		draw_paddle(p1_paddle);
 		draw_paddle(p2_paddle);
-		if (Flag == 1){
-			play_ball = update_ball(play_ball);
-			play_ball = check_bounce(play_ball, p1_paddle, p2_paddle);
-			Flag=0;
+		if (Flag == 1){//Timer sets this when it is time to check ball position
+			play_ball = update_ball(play_ball); //update ball location
+			play_ball = check_bounce(play_ball, p1_paddle, p2_paddle); //check for bounce
+			Flag = 0; //reset flag
 		}
-		draw_ball(play_ball);
-		if (Flag2 == 1){
+		draw_ball(play_ball); //draw the current ball position
+		if (Flag2 == 1){ //Time has to be updated
 			update_score_and_time(p1, p2, minute, second);
 		}
-		while (elapsed == 0);
 	}
 }
 

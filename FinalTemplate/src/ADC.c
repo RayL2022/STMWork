@@ -1,36 +1,31 @@
-#include "ADC.h"
-#include "ConfUart.h"
-#include "Timer.h"
-#include "Draw.h"
+/*
+ * ADC.c
+ *
+ *  Created on: Nov 30, 2021
+ *      Author: Ray & Shayne
+ */
 
-void pollADC(){
-	HAL_ADC_Start_DMA(&hadc1, adc_value, 1);
-	HAL_Delay(10);
-}
+#include "ADC.h" //Include our header file
 
-void configureADC()
+void configureADC(void)
 {
 	// Enable the ADC Clock.
 	__HAL_RCC_ADC1_CLK_ENABLE();
 
-	 /* Configure the global features of the ADC (Clock, Resolution, Data Alignment and number
-	 of conversion) */
-	 hadc1.Instance = ADC1;
+	 hadc1.Instance = ADC1; //Using ADC1
 	 hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
-	 hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+	 hadc1.Init.Resolution = ADC_RESOLUTION_12B; //Full 12-bit ADC Resolution
 	 hadc1.Init.ScanConvMode = DISABLE;
 	 hadc1.Init.ContinuousConvMode = ENABLE;
 	 hadc1.Init.DiscontinuousConvMode = DISABLE;
-	 hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+	 hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT; //Read bits as right-aligned
 	 hadc1.Init.NbrOfConversion = 1;
 	 hadc1.Init.DMAContinuousRequests = ENABLE; //Needed for DMA Configuration
 	 hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
 
 	 HAL_ADC_Init(&hadc1); // Initialize the ADC
 
-	 /* Configure for the selected ADC regular channel its corresponding rank in the sequence\r
-	 Analog-To-Digital Conversion 406
-	 and its sample time. */
+	 //Configure ADC to Corresponding Channel
 	 sConfig.Channel = ADC_CHANNEL_12;
 	 sConfig.Rank = ADC_REGULAR_RANK_1;
 	 sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
@@ -41,12 +36,12 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 {
 
 // GPIO init
-	GPIO_InitTypeDef GPIO_InitStruct;
-	__HAL_RCC_GPIOC_CLK_ENABLE();
-	GPIO_InitStruct.Mode      = GPIO_MODE_ANALOG;
+	GPIO_InitTypeDef GPIO_InitStruct; //GPIO Structure for PIN on Board
+	__HAL_RCC_GPIOC_CLK_ENABLE(); //Clock for GPIO C Port
+	GPIO_InitStruct.Mode      = GPIO_MODE_ANALOG; //Analog Input
 	GPIO_InitStruct.Pull      = GPIO_NOPULL;
 	GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
-	GPIO_InitStruct.Pin = GPIO_PIN_2;
+	GPIO_InitStruct.Pin = GPIO_PIN_2; //Given pin
 	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct); //Pin C2, Arduino A2, ADC1, In 12
 
 	configureDMA(); //Configure DMA associated with ADC
@@ -65,7 +60,7 @@ void configureDMA(){
 	hdma1.Init.Direction = DMA_PERIPH_TO_MEMORY; //From ADC and storing in memory
 	hdma1.Init.PeriphInc = DMA_PINC_DISABLE; //Don't want to increment from ADC
 	hdma1.Init.MemInc = DMA_MINC_ENABLE; //Ensure Increment in memory
-	//Ensure data size is large enough, in bits, to transmit the reading from ADC
+	//Ensure data size is large enough, in bits, to transmit the reading from ADC, this can be half as well
 	hdma1.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
 	hdma1.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
 	hdma1.Init.Mode = DMA_CIRCULAR; //Loop back to start when buffer is full
@@ -78,27 +73,29 @@ void configureDMA(){
 	HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn); //Enable the given stream
 }
 
+//IRQ for given DMA stream, calls the appropriate callback
 void DMA2_Stream0_IRQHandler(void){
 	HAL_DMA_IRQHandler(&hdma1);
 }
 
+//ADC input buffer is filled
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
-	if ((adc_value[0] > 3060)){ //Down
+	if ((adc_value[0] > 3060)){ //ADC values above this is considered Down State
+		//Don't keep changing the state if it is being held, only if it was in a previous state was different
 		if (my_current_state != DOWN){
-			my_current_state = DOWN;
-			HAL_UART_Transmit(&U6, (uint8_t*) &my_current_state, 1, 10); //Transmit input to other device
+			my_current_state = DOWN; //assign state
+			HAL_UART_Transmit(&U6, (uint8_t*) &my_current_state, 1, 10); //Transmit state input to other device
 		}
 	}
-
-	else if (adc_value[0] < 2800){ //Up
+	else if (adc_value[0] < 2800){ //ADC values below this is considered Down State
 		if (my_current_state != UP){
-			my_current_state = UP;
+			my_current_state = UP; //assign state
 			HAL_UART_Transmit(&U6, (uint8_t*) &my_current_state, 1, 10); //Transmit input to other device
 		}
 	}
 	else if (adc_value[0] < 3050 && adc_value[0] > 2900){ //State is neutral, otherwise
 		if (my_current_state != NEUTRAL){
-			my_current_state = NEUTRAL;
+			my_current_state = NEUTRAL; //assign state
 			HAL_UART_Transmit(&U6, (uint8_t*) &my_current_state, 1, 10); //Transmit input to other device
 		}
 	}

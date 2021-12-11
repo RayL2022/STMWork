@@ -1,3 +1,9 @@
+/*
+ * ConfUart.c
+ *
+ *  Created on: Nov 30, 2021
+ *      Author: Ray & Shayne
+ */
 #include "ConfUart.h"
 
 void configureUart(void){

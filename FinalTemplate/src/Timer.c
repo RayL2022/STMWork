@@ -2,10 +2,9 @@
  * Timer.c
  *
  *  Created on: Nov 30, 2021
- *      Author: Shayne
+ *      Author: Ray & Shayne
  */
 #include "Timer.h"
-#include "Draw.h"
 
 void Init_Timer() {
 	__HAL_RCC_TIM7_CLK_ENABLE(); //Enable the TIM7 peripheral
@@ -62,7 +61,7 @@ void TIM7_IRQHandler() {
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 // This callback is automatically called by the HAL on the UEV event
 	if(htim->Instance == TIM7){
-		if ((start == 1) && (D5_button == 0)){
+		if ((start == 1)){
 			one++;
 			Flag = 1;	//Set flag for main code to update ball
 			if ((one%10 == 0) && elapsed != 0){		//Every 1 second if time is not 0
@@ -94,36 +93,35 @@ void EXTI9_5_IRQHandler(void) {
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-	if (D5_button == 0){	//SW on analog stick is pushed
-		HAL_TIM_Base_Stop_IT(&htim7); //Stop the timer
-		D5_button = 1; //Button is on
-		user_input = 0;
-		while (user_input == 0){
-			HAL_UART_Receive(&USB_UART, (uint8_t*) &user_input, 1, HAL_MAX_DELAY); //Trigger receiving input for U6
-		}
-		play_ball.x_speed = 0;
-		play_ball.y_speed = 0;	//Set ball speed to 0
-
-		while ((play_ball.x_speed == 0) || (play_ball.x_speed == 0)){
-			play_ball.x_speed = (rand() % (MAX_X_SPEED - MIN_X_SPEED + 1)) + MIN_X_SPEED;
-			play_ball.y_speed = (rand() % (MAX_Y_SPEED - MIN_Y_SPEED + 1)) + MIN_Y_SPEED;	//Pick a random speed for the ball
-		}
-
-		if (play_ball.x_speed > 0){
-			play_ball.x_dir = 1;
-		}else{
-			play_ball.x_dir = -1;
-		}
-
-		if (play_ball.y_speed > 0){
-			play_ball.y_dir = 1;
-		}else{
-			play_ball.y_dir = -1;		//Increment ball based off random speed selected
-		}
-
-		D5_button = 0;
-		HAL_TIM_Base_Start_IT(&htim7); //Start the timer
+	//SW on analog stick is pushed
+	HAL_TIM_Base_Stop_IT(&htim7); //Stop the timer
+	user_input = 0; //User input of keyboard
+	while (user_input == 0){ //Press any key to continue and unpause
+		HAL_UART_Receive(&USB_UART, (uint8_t*) &user_input, 1, HAL_MAX_DELAY);
 	}
+	play_ball.x_speed = 0;
+	play_ball.y_speed = 0;	//Set ball speed to 0
+
+	//Pick a random speed for the ball
+	while ((play_ball.x_speed == 0) || (play_ball.x_speed == 0)){
+		play_ball.x_speed = (rand() % (MAX_X_SPEED - MIN_X_SPEED + 1)) + MIN_X_SPEED;
+		play_ball.y_speed = (rand() % (MAX_Y_SPEED - MIN_Y_SPEED + 1)) + MIN_Y_SPEED;
+	}
+
+	//Assign Ball direction based off random speed selected
+	if (play_ball.x_speed > 0){
+		play_ball.x_dir = 1;
+	}else{
+		play_ball.x_dir = -1;
+	}
+
+	if (play_ball.y_speed > 0){
+		play_ball.y_dir = 1;
+	}else{
+		play_ball.y_dir = -1;
+	}
+
+	HAL_TIM_Base_Start_IT(&htim7); //Start the timer
 
 }
 
