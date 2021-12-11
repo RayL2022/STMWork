@@ -1,6 +1,7 @@
 #ifndef TIMER_H_
 #define	TIMER_H_
 
+//Files needed for Timer.c
 #include "stm32f769xx.h"
 #include "stm32f7xx_hal.h"
 #include "uart.h"
@@ -9,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//Globals
 TIM_HandleTypeDef htim7;
 volatile uint32_t elapsed;
 volatile uint32_t one;
