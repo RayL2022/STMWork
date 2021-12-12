@@ -60,10 +60,10 @@ void TIM7_IRQHandler() {
 //TIM Callback
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 // This callback is automatically called by the HAL on the UEV event
-	if(htim->Instance == TIM7){
-		if ((start == 1)){
+	if(htim->Instance == TIM7){	//Check if timer 7 triggered
+		if ((start == 1)){	//If time has been selected
 			if (elapsed > 0){
-				elapsed--;;
+				elapsed--;;	//Decrement every second until 0
 			}
 			Flag = 1;	//Set flag for main code to update ball
 			count_down();
