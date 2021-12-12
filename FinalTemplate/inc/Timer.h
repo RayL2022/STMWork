@@ -13,7 +13,6 @@
 //Globals
 TIM_HandleTypeDef htim7;
 volatile uint32_t elapsed;
-volatile uint32_t one;
 
 char minute;
 char second;
