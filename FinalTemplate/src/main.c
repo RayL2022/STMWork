@@ -1,3 +1,12 @@
+/*
+ * main.c
+ *
+ *  Created on: Nov 30, 2021
+ *      Author: Ray & Shayne
+ *
+ *  Main File for Final Project integration/implementation of Pong game
+ */
+
 #include "init.h"
 #include "Draw.h"
 #include "ADC.h"

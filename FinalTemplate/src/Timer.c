@@ -3,6 +3,8 @@
  *
  *  Created on: Nov 30, 2021
  *      Author: Ray & Shayne
+ *  Needed functions and configurations for timer and pause button
+ *  interrupt
  */
 #include "Timer.h"
 
@@ -10,8 +12,8 @@ void Init_Timer() {
 	__HAL_RCC_TIM7_CLK_ENABLE(); //Enable the TIM7 peripheral
 
 	htim7.Instance = TIM7;
-	htim7.Init.Prescaler = 9999;
-	htim7.Init.Period = 10799; //1sec
+	htim7.Init.Prescaler = 999;
+	htim7.Init.Period = 10799; //0.1sec
 
 	HAL_NVIC_EnableIRQ(TIM7_IRQn);
 
@@ -60,13 +62,14 @@ void TIM7_IRQHandler() {
 //TIM Callback
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 // This callback is automatically called by the HAL on the UEV event
-	if(htim->Instance == TIM7){	//Check if timer 7 triggered
-		if ((start == 1)){	//If time has been selected
-			if (elapsed > 0){
-				elapsed--;;	//Decrement every second until 0
-			}
+	if(htim->Instance == TIM7){
+		if ((start == 1)){
+			one++;
 			Flag = 1;	//Set flag for main code to update ball
-			count_down();
+			if ((one%10 == 0) && elapsed != 0){		//Every 1 second if time is not 0
+				elapsed--;  //Decrement elapsed
+				count_down();	//Call count_down
+			}
 		}
 	}
 }
@@ -100,11 +103,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	}
 	play_ball.x_speed = 0;
 	play_ball.y_speed = 0;	//Set ball speed to 0
+
 	//Pick a random speed for the ball
 	while ((play_ball.x_speed == 0) || (play_ball.x_speed == 0)){
 		play_ball.x_speed = (rand() % (MAX_X_SPEED - MIN_X_SPEED + 1)) + MIN_X_SPEED;
 		play_ball.y_speed = (rand() % (MAX_Y_SPEED - MIN_Y_SPEED + 1)) + MIN_Y_SPEED;
 	}
+
 	//Assign Ball direction based off random speed selected
 	if (play_ball.x_speed > 0){
 		play_ball.x_dir = 1;
@@ -119,6 +124,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	}
 
 	HAL_TIM_Base_Start_IT(&htim7); //Start the timer
+
 }
 
 

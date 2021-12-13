@@ -3,6 +3,9 @@
  *
  *  Created on: Nov 30, 2021
  *      Author: Ray & Shayne
+ *
+ *  Various updating/drawing and related functions for displays and game
+ *  initializations
  */
 
 #include "Draw.h"

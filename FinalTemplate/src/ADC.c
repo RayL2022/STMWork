@@ -3,6 +3,8 @@
  *
  *  Created on: Nov 30, 2021
  *      Author: Ray & Shayne
+ *
+ *  Needed functions and configurations for ADC and DMA
  */
 
 #include "ADC.h" //Include our header file

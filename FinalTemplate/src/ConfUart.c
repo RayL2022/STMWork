@@ -3,6 +3,8 @@
  *
  *  Created on: Nov 30, 2021
  *      Author: Ray & Shayne
+ *
+ *  Needed functions and configurations for UART transmission
  */
 #include "ConfUart.h"
 
