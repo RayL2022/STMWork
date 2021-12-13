@@ -87,7 +87,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 			HAL_UART_Transmit(&U6, (uint8_t*) &my_current_state, 1, 10); //Transmit state input to other device
 		}
 	}
-	else if (adc_value[0] < 2800){ //ADC values below this is considered Down State
+	else if (adc_value[0] < 2800){ //ADC values below this is considered Up State
 		if (my_current_state != UP){
 			my_current_state = UP; //assign state
 			HAL_UART_Transmit(&U6, (uint8_t*) &my_current_state, 1, 10); //Transmit input to other device

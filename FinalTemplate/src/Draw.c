@@ -241,7 +241,7 @@ void update_score_and_time(player p1, player p2, uint8_t front_time, uint8_t bac
 void ball_reset(void){
 
 	//Make the ball start at a random row (y) but a fixed column the center (29)
-	play_ball.x_column = 29;
+	play_ball.x_column = (MAX_COL/2) + 1;
 	play_ball.y_row = (rand() % ((MAX_ROW - 1) - (MIN_ROW + 1) + 1)) + (MIN_ROW + 1);
 	play_ball.last_x = 0;
 	play_ball.last_y = 0;
